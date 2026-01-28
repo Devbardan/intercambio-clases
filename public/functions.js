@@ -1,3 +1,4 @@
+//functions.js
 alert("Bienvenido a el sistema de switch aqui podras cambiar tus clases con otros compañeros");
 const btnFormulario = document.getElementById("btn-formulario");
 const formularioContainer = document.getElementById("formulario-container");
@@ -12,7 +13,9 @@ document.getElementById("clases-propias").value = "";
 let solicitudPendienteId = null;
 
 
-
+function generarId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
 
 // ===== IDENTIDAD DEL USUARIO =====
 let usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -20,7 +23,7 @@ let usuario = JSON.parse(localStorage.getItem("usuario"));
 if (!usuario) {
     const nombre = prompt("Ingresa tu nombre:");
     usuario = {
-        id: crypto.randomUUID(),
+        id: generarId(),
         nombre: nombre
     };
     localStorage.setItem("usuario", JSON.stringify(usuario));
@@ -42,26 +45,16 @@ btnFormulario.addEventListener("click", () => {
     formulario.reset();
 });
 
-const clasesPropias = obtenerClasesPropias();
 // Obtener solicitudes guardadas
 async function obtenerSolicitudes() {
-    const res = await fetch('http://localhost:3000/solicitudes');
-    return await res.json();
+    const response = await fetch("/api/solicitudes");
+    return await response.json();
 }
 
-// Guardar solicitudes
-async function guardarSolicitud(solicitud) {
-    const res = await fetch('http://localhost:3000/solicitudes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(solicitud)
-    });
-    return await res.json();
-}
 
 // Mostrar solicitudes en pantalla
-function mostrarSolicitudes() {
-    const solicitudes = obtenerSolicitudes();
+async function mostrarSolicitudes() {
+    const solicitudes = await obtenerSolicitudes();
     lista.innerHTML = "";
 
     // Clasificación
@@ -186,7 +179,7 @@ function ocultarErrorIntercambio() {
 }
 
 
-function prepararFormulario(idSolicitud) {
+async function prepararFormulario(idSolicitud) {
     ocultarErrorIntercambio();
     solicitudPendienteId = idSolicitud;
 
@@ -195,7 +188,7 @@ function prepararFormulario(idSolicitud) {
     // Mostrar info de intercambio
     document.getElementById("info-intercambio").classList.remove("oculto");
 
-    const solicitudes = obtenerSolicitudes();
+    const solicitudes = await obtenerSolicitudes();
     const solicitud = solicitudes.find(s => s.id === idSolicitud);
 
     if (!solicitud) {
@@ -245,7 +238,7 @@ document.getElementById("clases-propias").addEventListener("change", function ()
 
 
 // Enviar formulario
-formulario.addEventListener("submit", function (e) {
+formulario.addEventListener("submit",async function (e) {
     e.preventDefault();
     ocultarErrorIntercambio();
 
@@ -270,7 +263,7 @@ formulario.addEventListener("submit", function (e) {
     // ===============================
     if (!solicitudPendienteId) {
         const nuevaSolicitud = {
-            id: crypto.randomUUID(),
+            id: generarId(),
             estado: "abierta",
             claseA: {
                 userId: usuario.id,
@@ -282,7 +275,15 @@ formulario.addEventListener("submit", function (e) {
             claseB: null
         };
 
-        solicitudes.push(nuevaSolicitud);
+        await fetch("/api/solicitudes", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(nuevaSolicitud)
+});
+await mostrarSolicitudes();
+
     }
 
     // ===============================
@@ -314,12 +315,19 @@ formulario.addEventListener("submit", function (e) {
             fecha
         };
 
-        solicitud.estado = "intercambiada";
-        solicitudPendienteId = null;
-        document.getElementById("info-intercambio").classList.add("oculto");
+        await fetch(`/api/solicitudes/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        claseB: {
+            userId: usuario.id,
+            nombre: usuario.nombre,
+            grupo,
+            fecha
+        }
+    })
+});
     }
-
-    guardarSolicitudes(solicitudes);
 
     formulario.reset();
     formularioContainer.classList.add("oculto");
@@ -327,14 +335,6 @@ formulario.addEventListener("submit", function (e) {
     mostrarSolicitudes();
 });
 
-async function aceptarIntercambio(id, datos) {
-    const res = await fetch(`http://localhost:3000/solicitudes/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
-    });
-    return await res.json();
-}
 
 
 function resetUsuario() {
@@ -342,14 +342,15 @@ function resetUsuario() {
     location.reload();
 }
 
-function obtenerClasesPropias() {
-    const solicitudes = obtenerSolicitudes();
+async function obtenerClasesPropias() {
+    const solicitudes = await obtenerSolicitudes();
     return solicitudes.filter(s =>
         s.estado === "abierta" &&
         s.claseA &&
         s.claseA.userId === usuario.id
     );
 }
+
 
 
 // Cargar solicitudes al abrir la página

@@ -1,38 +1,48 @@
-// server.js
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import path from "path";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
 
-// Conexión a MongoDB Atlas
-mongoose.connect('TU_URI_MONGODB', { useNewUrlParser: true, useUnifiedTopology: true });
+// 👉 servir frontend
+app.use(express.static("public"));
 
-// Modelo de solicitud
-const Solicitud = mongoose.model('Solicitud', new mongoose.Schema({
-    estado: String,
-    claseA: Object,
-    claseB: Object
-}));
+// 🧠 memoria temporal
+let solicitudes = [];
 
-// Rutas
-app.get('/solicitudes', async (req, res) => {
-    const solicitudes = await Solicitud.find();
+// GET todas
+app.get("/api/solicitudes", (req, res) => {
     res.json(solicitudes);
 });
 
-app.post('/solicitudes', async (req, res) => {
-    const nueva = new Solicitud(req.body);
-    await nueva.save();
-    res.json(nueva);
+// POST nueva
+app.post("/api/solicitudes", (req, res) => {
+    solicitudes.push(req.body);
+    res.json({ ok: true });
 });
 
-app.put('/solicitudes/:id', async (req, res) => {
-    const solicitud = await Solicitud.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(solicitud);
+// PUT aceptar intercambio
+app.put("/api/solicitudes/:id", (req, res) => {
+    const solicitud = solicitudes.find(s => s.id === req.params.id);
+    if (!solicitud) {
+        return res.status(404).json({ error: "No encontrada" });
+    }
+
+    solicitud.estado = "intercambiada";
+    solicitud.claseB = req.body.claseB;
+
+    res.json({ ok: true });
 });
 
-// Servidor
-app.listen(3000, () => console.log('Servidor en http://localhost:3000'));
+// fallback
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve("public/index.html"));
+});
+
+app.listen(PORT, () => {
+    console.log("Servidor corriendo en puerto", PORT);
+});
