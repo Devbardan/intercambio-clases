@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Intercambio de Clases</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<p id="usuario-actual"></p>
+	<button onclick="resetUsuario()">Cambiar usuario (DEV)</button>
+
+
+    <h1>Intercambio de Clases</h1>
+
+    <!-- Listado de solicitudes -->
+    <section id="lista-solicitudes">
+        <!-- Aquí se insertarán las solicitudes con JS -->
+    </section>
+
+    <!-- Botón para mostrar el formulario -->
+    <button id="btn-formulario">+ Solicitar intercambio</button>
+
+    <!-- Formulario -->
+    <section id="formulario-container" class="oculto">
+        <div id="info-intercambio" class="alerta alerta-info oculto">
+
+    <!-- 🔴 Alerta de error -->
+    <div id="error-intercambio" class="alerta alerta-error oculto"></div>
+
+    <!-- 🟡 Alerta informativa -->
+    <div class="alerta alerta-info-texto">
+        ⚠️ <strong>Atención:</strong><br>
+        Ingresa aquí la <strong>clase a la que tú NO podrás asistir</strong>
+        (grupo y fecha).<br>
+        Esta clase será intercambiada por la del otro estudiante.
+    </div>
+
+</div>
+<div id="selector-clase-propia" class="oculto">
+    <label for="clases-propias">
+        Selecciona una de tus clases ya registradas:
+    </label>
+    <select id="clases-propias">
+        <option value="">-- Usar otra clase --</option>
+    </select>
+</div>
+        <form id="formulario">
+        	<button type="button" id="cerrar-formulario">✕</button>
+            <h2>Nueva solicitud</h2>
+            <label>
+                Asignatura
+                <input type="text" id="asignatura" required>
+            </label>
+
+            <label>
+                Grupo
+                <input type="number" id="grupo" required>
+            </label>
+
+            <label>
+                Fecha a la que no puede asistir
+                <input type="date" id="fecha" required>
+            </label>
+
+            <button type="submit">Agregar</button>
+        </form>
+    </section>
+
+    <script src="functions.js"></script>
+</body>
+</html>
