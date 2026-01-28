@@ -184,11 +184,9 @@ async function prepararFormulario(idSolicitud) {
     solicitudPendienteId = idSolicitud;
 
     formularioContainer.classList.remove("oculto");
-
-    // Mostrar info de intercambio
     document.getElementById("info-intercambio").classList.remove("oculto");
 
-    const solicitudes = await obtenerSolicitudes();
+    const solicitudes = await obtenerSolicitudes(); // ✅ AWAIT
     const solicitud = solicitudes.find(s => s.id === idSolicitud);
 
     if (!solicitud) {
@@ -196,46 +194,10 @@ async function prepararFormulario(idSolicitud) {
         return;
     }
 
-    // ===== CLASES PROPIAS =====
-const contenedorSelector = document.getElementById("selector-clase-propia");
-const select = document.getElementById("clases-propias");
-
-select.innerHTML = `<option value="">-- Usar otra clase --</option>`;
-
-if (clasesPropias.length > 0) {
-    contenedorSelector.classList.remove("oculto");
-
-    clasesPropias.forEach(c => {
-        const option = document.createElement("option");
-        option.value = c.id;
-        option.textContent = `${c.claseA.asignatura} | Grupo ${c.claseA.grupo} | ${c.claseA.fecha}`;
-        select.appendChild(option);
-    });
-} else {
-    contenedorSelector.classList.add("oculto");
-}
-
-document.getElementById("clases-propias").addEventListener("change", function () {
-    const idSolicitud = this.value;
-    if (!idSolicitud) return;
-
-    const solicitudes = await obtenerSolicitudes();
-    const solicitud = solicitudes.find(s => s.id === idSolicitud);
-
-    if (!solicitud) return;
-
-    document.getElementById("asignatura").value = solicitud.claseA.asignatura;
-    document.getElementById("grupo").value = solicitud.claseA.grupo;
-    document.getElementById("fecha").value = solicitud.claseA.fecha;
-});
-
-
-    // Prellenar con la clase existente
     document.getElementById("asignatura").value = solicitud.claseA.asignatura;
     document.getElementById("grupo").value = solicitud.claseA.grupo;
     document.getElementById("fecha").value = solicitud.claseA.fecha;
 }
-
 
 // Enviar formulario
 formulario.addEventListener("submit",async function (e) {
