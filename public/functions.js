@@ -219,7 +219,7 @@ document.getElementById("clases-propias").addEventListener("change", function ()
     const idSolicitud = this.value;
     if (!idSolicitud) return;
 
-    const solicitudes = obtenerSolicitudes();
+    const solicitudes = await obtenerSolicitudes();
     const solicitud = solicitudes.find(s => s.id === idSolicitud);
 
     if (!solicitud) return;
@@ -256,7 +256,7 @@ formulario.addEventListener("submit",async function (e) {
         return;
     }
 
-    const solicitudes = obtenerSolicitudes();
+    const solicitudes = await obtenerSolicitudes();
 
     // ===============================
     // 🆕 CREAR NUEVA SOLICITUD
@@ -340,15 +340,6 @@ await mostrarSolicitudes();
 function resetUsuario() {
     localStorage.removeItem("usuario");
     location.reload();
-}
-
-async function obtenerClasesPropias() {
-    const solicitudes = await obtenerSolicitudes();
-    return solicitudes.filter(s =>
-        s.estado === "abierta" &&
-        s.claseA &&
-        s.claseA.userId === usuario.id
-    );
 }
 
 
