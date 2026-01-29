@@ -53,6 +53,7 @@ async function obtenerSolicitudes() {
 
 
 // Mostrar solicitudes en pantalla
+// Mostrar solicitudes en pantalla
 async function mostrarSolicitudes() {
     const solicitudes = await obtenerSolicitudes();
     lista.innerHTML = "";
@@ -62,20 +63,10 @@ async function mostrarSolicitudes() {
     const pendientes = [];
     const intercambiadas = [];
 
-    // Separar por estado y participación
     solicitudes.forEach(s => {
-        // Validación: si la solicitud es antigua o recién creada, aseguramos que exista claseA
-        if (!s.claseA) {
-            s.claseA = {
-                userId: s.creadorId || "desconocido",
-                nombre: s.creadorNombre || "Desconocido",
-                asignatura: s.asignatura || "Desconocida",
-                grupo: s.grupo || "Desconocido",
-                fecha: s.fecha || "Desconocida"
-            };
-        }
+        // 🔐 Normalización por si hay datos antiguos
+        if (!s.claseA) return;
 
-        // Identificar mis intercambios
         const soyParte =
             s.estado === "intercambiada" &&
             (s.claseA.userId === usuario.id || s.claseB?.userId === usuario.id);
@@ -89,15 +80,12 @@ async function mostrarSolicitudes() {
         }
     });
 
-    // Orden: mis intercambios → pendientes → intercambiadas
     const ordenadas = [...mias, ...pendientes, ...intercambiadas];
 
-    // Mostrar cada solicitud
     ordenadas.forEach(solicitud => {
         const div = document.createElement("div");
         div.classList.add("solicitud");
 
-        // Estado visible y color
         let textoEstado = "";
         let claseEstado = "";
 
@@ -107,38 +95,41 @@ async function mostrarSolicitudes() {
              solicitud.claseB?.userId === usuario.id)
         ) {
             textoEstado = "Intercambio en el que participaste";
-            claseEstado = "mia"; // azul
+            claseEstado = "mia";
         } else if (solicitud.estado === "abierta") {
             textoEstado = "Pendiente de intercambio";
-            claseEstado = "pendiente"; // verde
+            claseEstado = "pendiente";
         } else {
             textoEstado = "Intercambio realizado";
-            claseEstado = "intercambiada"; // rojo
+            claseEstado = "intercambiada";
         }
 
         div.classList.add(claseEstado);
 
-        // Información del intercambio completo
-        let infoIntercambio = `
-    <br><strong>Resultado del intercambio:</strong><br>
-    <div class="resultado">
-        ✅ ${solicitud.claseA.nombre} quedó con:
-        <br>
-        ${asignaturaFinal}
-        (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
-    </div>
-    <div class="resultado">
-        ✅ ${solicitud.claseB.nombre} quedó con:
-        <br>
-        ${asignaturaFinal}
-        (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
-    </div>
-`;
+        // ✅ ASIGNATURA ÚNICA (fuente de verdad)
+        const asignaturaFinal = solicitud.claseA.asignatura;
 
-}
+        // 🔁 Resultado del intercambio
+        let infoIntercambio = "";
+        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
+            infoIntercambio = `
+                <br><strong>Resultado del intercambio:</strong><br>
+                <div class="resultado">
+                    ✅ ${solicitud.claseA.nombre} quedó con:
+                    <br>
+                    ${asignaturaFinal}
+                    (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
+                </div>
+                <div class="resultado">
+                    ✅ ${solicitud.claseB.nombre} quedó con:
+                    <br>
+                    ${asignaturaFinal}
+                    (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
+                </div>
+            `;
+        }
 
-
-        // Botón aceptar si corresponde
+        // Botón aceptar
         let botonAceptar = "";
         if (
             solicitud.estado === "abierta" &&
@@ -151,9 +142,9 @@ async function mostrarSolicitudes() {
             `;
         }
 
-        // Construir HTML
+        // Render final
         div.innerHTML = `
-            <strong>${solicitud.claseA.asignatura}</strong>
+            <strong>${asignaturaFinal}</strong><br>
             Grupo: ${solicitud.claseA.grupo}<br>
             Fecha: ${solicitud.claseA.fecha}<br>
             Solicitado por: ${solicitud.claseA.nombre}<br>
