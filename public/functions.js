@@ -6,7 +6,6 @@ const formulario = document.getElementById("formulario");
 const lista = document.getElementById("lista-solicitudes");
 document.getElementById("cerrar-formulario").addEventListener("click", () => {
     document.getElementById("selector-clase-propia").classList.add("oculto");
-document.getElementById("clases-propias").value = "";
 
     formularioContainer.classList.add("oculto");
 });
