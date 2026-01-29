@@ -165,6 +165,16 @@ async function mostrarSolicitudes() {
         lista.appendChild(div);
     });
 }
+async function obtenerClasesPropias() {
+    const solicitudes = await obtenerSolicitudes();
+
+    return solicitudes.filter(s =>
+        s.estado === "abierta" &&
+        s.claseA &&
+        s.claseA.userId === usuario.id
+    );
+}
+
 function mostrarErrorIntercambio(mensaje) {
     const errorDiv = document.getElementById("error-intercambio");
     errorDiv.textContent = mensaje;
@@ -182,10 +192,14 @@ async function prepararFormulario(idSolicitud) {
     ocultarErrorIntercambio();
     solicitudPendienteId = idSolicitud;
 
+    // Mostrar formulario
     formularioContainer.classList.remove("oculto");
+
+    // Mostrar mensaje de información
     document.getElementById("info-intercambio").classList.remove("oculto");
 
-    const solicitudes = await obtenerSolicitudes(); // ✅ AWAIT
+    // Obtener solicitudes actualizadas
+    const solicitudes = await obtenerSolicitudes();
     const solicitud = solicitudes.find(s => s.id === idSolicitud);
 
     if (!solicitud) {
@@ -193,6 +207,55 @@ async function prepararFormulario(idSolicitud) {
         return;
     }
 
+    // ===============================
+    // 🔁 SELECTOR DE CLASES PROPIAS
+    // ===============================
+    const contenedorSelector = document.getElementById("selector-clase-propia");
+    const select = document.getElementById("clases-propias");
+
+    // Limpiar selector
+    select.innerHTML = `<option value="">-- Usar otra clase --</option>`;
+
+    // Obtener clases propias ACTUALIZADAS
+    const clasesPropias = await obtenerClasesPropias();
+
+    if (clasesPropias.length > 0) {
+        contenedorSelector.classList.remove("oculto");
+
+        clasesPropias.forEach(c => {
+            const option = document.createElement("option");
+            option.value = c.id;
+            option.textContent =
+                `${c.claseA.asignatura} | Grupo ${c.claseA.grupo} | ${c.claseA.fecha}`;
+            select.appendChild(option);
+        });
+    } else {
+        contenedorSelector.classList.add("oculto");
+    }
+
+    // ===============================
+    // 🧠 AUTORELLENO AL SELECCIONAR
+    // ===============================
+    select.onchange = async function () {
+        const idSeleccionado = this.value;
+        if (!idSeleccionado) return;
+
+        const solicitudes = await obtenerSolicitudes();
+        const solicitudSeleccionada = solicitudes.find(s => s.id === idSeleccionado);
+
+        if (!solicitudSeleccionada) return;
+
+        document.getElementById("asignatura").value =
+            solicitudSeleccionada.claseA.asignatura;
+        document.getElementById("grupo").value =
+            solicitudSeleccionada.claseA.grupo;
+        document.getElementById("fecha").value =
+            solicitudSeleccionada.claseA.fecha;
+    };
+
+    // ===============================
+    // 📌 PRELLENADO BASE (clase A)
+    // ===============================
     document.getElementById("asignatura").value = solicitud.claseA.asignatura;
     document.getElementById("grupo").value = solicitud.claseA.grupo;
     document.getElementById("fecha").value = solicitud.claseA.fecha;
