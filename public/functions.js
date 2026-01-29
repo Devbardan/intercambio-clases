@@ -276,9 +276,11 @@ await mostrarSolicitudes();
             fecha
         };
 
-        await fetch(`/api/solicitudes/${id}`, {
+        await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+        "Content-Type": "application/json"
+    },
     body: JSON.stringify({
         claseB: {
             userId: usuario.id,
@@ -288,6 +290,7 @@ await mostrarSolicitudes();
         }
     })
 });
+
     }
 
     formulario.reset();
