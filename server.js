@@ -28,16 +28,19 @@ const solicitudSchema = new mongoose.Schema({
 
 const Solicitud = mongoose.model("Solicitud", solicitudSchema);
 
-// GET todas las solicitudes
+// GET todas las solicitudes (ROBUSTO)
 app.get("/api/solicitudes", async (req, res) => {
     try {
-        const solicitudes = await Solicitud.find({});
-        res.json(solicitudes);
+        const solicitudes = await Solicitud.find({}).lean();
+
+        // 🔐 Asegurar siempre un array válido
+        res.json(Array.isArray(solicitudes) ? solicitudes : []);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Error al obtener solicitudes" });
+        console.error("❌ Error GET /api/solicitudes:", err);
+        res.json([]); // 👈 NUNCA romper el frontend
     }
 });
+
 
 // POST nueva solicitud
 app.post("/api/solicitudes", async (req, res) => {

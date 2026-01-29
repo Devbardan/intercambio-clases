@@ -47,10 +47,17 @@ btnFormulario.addEventListener("click", () => {
 
 // Obtener solicitudes guardadas
 async function obtenerSolicitudes() {
-    const response = await fetch("/api/solicitudes");
-    return await response.json();
-}
+async function obtenerSolicitudes() {
+    try {
+        const response = await fetch("/api/solicitudes");
+        const data = await response.json();
 
+        return Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error("❌ Error al obtener solicitudes", err);
+        return [];
+    }
+}
 
 // Mostrar solicitudes en pantalla
 async function mostrarSolicitudes() {
@@ -119,23 +126,22 @@ async function mostrarSolicitudes() {
         div.classList.add(claseEstado);
 
         // Información del intercambio completo
-        let infoIntercambio = "";
-        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-    infoIntercambio = `
-        <br><strong>Resultado del intercambio:</strong><br>
-        <div class="resultado">
-            ✅ ${solicitud.claseA.nombre} quedó con:
-            <br>
-            ${solicitud.claseB.asignatura}
-            (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
-        </div>
-        <div class="resultado">
-            ✅ ${solicitud.claseB.nombre} quedó con:
-            <br>
-            ${solicitud.claseA.asignatura}
-            (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
-        </div>
-    `;
+        let infoIntercambio = `
+    <br><strong>Resultado del intercambio:</strong><br>
+    <div class="resultado">
+        ✅ ${solicitud.claseA.nombre} quedó con:
+        <br>
+        ${asignaturaFinal}
+        (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
+    </div>
+    <div class="resultado">
+        ✅ ${solicitud.claseB.nombre} quedó con:
+        <br>
+        ${asignaturaFinal}
+        (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
+    </div>
+`;
+
 }
 
 
