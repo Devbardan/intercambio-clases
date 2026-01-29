@@ -38,6 +38,11 @@ app.put("/api/solicitudes/:id", (req, res) => {
     res.json({ ok: true });
 });
 
+app.delete("/api/solicitudes/:id", (req, res) => {
+    solicitudes = solicitudes.filter(s => s.id !== req.params.id);
+    res.json({ ok: true });
+});
+
 // fallback
 app.get("*", (req, res) => {
     res.sendFile(path.resolve("public/index.html"));

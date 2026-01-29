@@ -313,48 +313,47 @@ await mostrarSolicitudes();
     // ===============================
     // 🔁 ACEPTAR INTERCAMBIO
     // ===============================
-    else {
-        const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
+   else {
+    const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
 
-        if (!solicitud || solicitud.estado !== "abierta") {
-            mostrarErrorIntercambio("❌ Esta solicitud ya no está disponible.");
-            return;
-        }
-
-        const grupoClaseA = Number(solicitud.claseA.grupo);
-
-        if (grupo === grupoClaseA) {
-            mostrarErrorIntercambio(
-                "❌ No puedes intercambiar una clase por otra del mismo grupo. " +
-                "Ambos grupos tienen el mismo horario."
-            );
-            return;
-        }
-
-        solicitud.claseB = {
-            userId: usuario.id,
-            nombre: usuario.nombre,
-            asignatura: solicitud.claseA.asignatura,
-            grupo,
-            fecha
-        };
-
-        await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
-    method: "PUT",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        claseB: {
-            userId: usuario.id,
-            nombre: usuario.nombre,
-            grupo,
-            fecha
-        }
-    })
-});
-
+    if (!solicitud || solicitud.estado !== "abierta") {
+        mostrarErrorIntercambio("❌ Esta solicitud ya no está disponible.");
+        return;
     }
+
+    const grupoClaseA = Number(solicitud.claseA.grupo);
+
+    if (grupo === grupoClaseA) {
+        mostrarErrorIntercambio(
+            "❌ No puedes intercambiar una clase por otra del mismo grupo."
+        );
+        return;
+    }
+
+    // 🧠 eliminar clase propia usada
+    const idClasePropiaSeleccionada =
+        document.getElementById("clases-propias")?.value;
+
+    if (idClasePropiaSeleccionada) {
+        await fetch(`/api/solicitudes/${idClasePropiaSeleccionada}`, {
+            method: "DELETE"
+        });
+    }
+
+    // aceptar intercambio
+    await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            claseB: {
+                userId: usuario.id,
+                nombre: usuario.nombre,
+                grupo,
+                fecha
+            }
+        })
+    });
+}
 
     formulario.reset();
     formularioContainer.classList.add("oculto");
