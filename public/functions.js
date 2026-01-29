@@ -119,23 +119,22 @@ async function mostrarSolicitudes() {
         div.classList.add(claseEstado);
 
         // Información del intercambio completo
-        let infoIntercambio = "";
-        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-    infoIntercambio = `
-        <br><strong>Resultado del intercambio:</strong><br>
-        <div class="resultado">
-            ✅ ${solicitud.claseA.nombre} quedó con:
-            <br>
-            ${solicitud.claseB.asignatura}
-            (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
-        </div>
-        <div class="resultado">
-            ✅ ${solicitud.claseB.nombre} quedó con:
-            <br>
-            ${solicitud.claseA.asignatura}
-            (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
-        </div>
-    `;
+        let infoIntercambio = `
+    <br><strong>Resultado del intercambio:</strong><br>
+    <div class="resultado">
+        ✅ ${solicitud.claseA.nombre} quedó con:
+        <br>
+        ${asignaturaFinal}
+        (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
+    </div>
+    <div class="resultado">
+        ✅ ${solicitud.claseB.nombre} quedó con:
+        <br>
+        ${asignaturaFinal}
+        (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
+    </div>
+`;
+
 }
 
 
