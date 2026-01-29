@@ -37,9 +37,10 @@ btnFormulario.addEventListener("click", () => {
     solicitudPendienteId = null;
 
     formularioContainer.classList.toggle("oculto");
-
-    // Ocultar info porque es una solicitud nueva
     document.getElementById("info-intercambio").classList.add("oculto");
+
+    const inputAsignatura = document.getElementById("asignatura");
+    inputAsignatura.disabled = false; // 🔓 desbloquear
 
     formulario.reset();
 });
@@ -192,10 +193,9 @@ async function prepararFormulario(idSolicitud) {
     ocultarErrorIntercambio();
     solicitudPendienteId = idSolicitud;
 
-    // Mostrar formulario
     formularioContainer.classList.remove("oculto");
 
-    // Mostrar mensaje de información
+    // Mostrar info de intercambio
     document.getElementById("info-intercambio").classList.remove("oculto");
 
     // Obtener solicitudes actualizadas
@@ -207,17 +207,26 @@ async function prepararFormulario(idSolicitud) {
         return;
     }
 
-    // ===============================
-    // 🔁 SELECTOR DE CLASES PROPIAS
-    // ===============================
+    // ===== ASIGNATURA (NO SE CAMBIA) =====
+    const inputAsignatura = document.getElementById("asignatura");
+    inputAsignatura.value = solicitud.claseA.asignatura;
+    inputAsignatura.disabled = true; // 🔒 bloquear
+
+    // ===== PRELLENAR DATOS =====
+    document.getElementById("grupo").value = "";
+    document.getElementById("fecha").value = "";
+
+    // ===== CLASES PROPIAS =====
     const contenedorSelector = document.getElementById("selector-clase-propia");
     const select = document.getElementById("clases-propias");
 
-    // Limpiar selector
     select.innerHTML = `<option value="">-- Usar otra clase --</option>`;
 
-    // Obtener clases propias ACTUALIZADAS
-    const clasesPropias = await obtenerClasesPropias();
+    const clasesPropias = solicitudes.filter(s =>
+        s.estado === "abierta" &&
+        s.claseA &&
+        s.claseA.userId === usuario.id
+    );
 
     if (clasesPropias.length > 0) {
         contenedorSelector.classList.remove("oculto");
@@ -233,33 +242,21 @@ async function prepararFormulario(idSolicitud) {
         contenedorSelector.classList.add("oculto");
     }
 
-    // ===============================
-    // 🧠 AUTORELLENO AL SELECCIONAR
-    // ===============================
+    // ===== AL SELECCIONAR UNA CLASE PROPIA =====
     select.onchange = async function () {
-        const idSeleccionado = this.value;
-        if (!idSeleccionado) return;
+        const idSeleccionada = this.value;
+        if (!idSeleccionada) return;
 
-        const solicitudes = await obtenerSolicitudes();
-        const solicitudSeleccionada = solicitudes.find(s => s.id === idSeleccionado);
+        const solicitudesActuales = await obtenerSolicitudes();
+        const seleccionada = solicitudesActuales.find(s => s.id === idSeleccionada);
 
-        if (!solicitudSeleccionada) return;
+        if (!seleccionada) return;
 
-        document.getElementById("asignatura").value =
-            solicitudSeleccionada.claseA.asignatura;
-        document.getElementById("grupo").value =
-            solicitudSeleccionada.claseA.grupo;
-        document.getElementById("fecha").value =
-            solicitudSeleccionada.claseA.fecha;
+        document.getElementById("grupo").value = seleccionada.claseA.grupo;
+        document.getElementById("fecha").value = seleccionada.claseA.fecha;
     };
-
-    // ===============================
-    // 📌 PRELLENADO BASE (clase A)
-    // ===============================
-    document.getElementById("asignatura").value = solicitud.claseA.asignatura;
-    document.getElementById("grupo").value = solicitud.claseA.grupo;
-    document.getElementById("fecha").value = solicitud.claseA.fecha;
 }
+
 
 // Enviar formulario
 formulario.addEventListener("submit",async function (e) {
@@ -269,6 +266,13 @@ formulario.addEventListener("submit",async function (e) {
     const asignatura = document.getElementById("asignatura").value.trim();
     const grupo = Number(document.getElementById("grupo").value);
     const fecha = document.getElementById("fecha").value;
+
+    // 🔴 Validación solo para nueva solicitud
+if (!solicitudPendienteId && !asignatura) {
+    mostrarErrorIntercambio("❌ Debes ingresar la asignatura.");
+    return;
+}
+
 
     if (!asignatura || !grupo || !fecha) {
         mostrarErrorIntercambio("❌ Debes completar todos los campos.");
