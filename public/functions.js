@@ -346,17 +346,20 @@ await mostrarSolicitudes();
 
     // aceptar intercambio
     await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            claseB: {
-                userId: usuario.id,
-                nombre: usuario.nombre,
-                grupo,
-                fecha
-            }
-        })
-    });
+    method: "PUT",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        claseB: {
+            userId: usuario.id,
+            nombre: usuario.nombre,
+            asignatura: solicitud.claseA.asignatura, // 👈 CLAVE
+            grupo,
+            fecha
+        }
+    })
+});
 }
 
     formulario.reset();

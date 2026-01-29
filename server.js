@@ -1,88 +1,82 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
-
 import mongoose from "mongoose";
-
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("🟢 MongoDB conectado"))
-  .catch(err => console.error("🔴 Error MongoDB", err));
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// 👉 servir frontend
 app.use(express.static("public"));
 
+// 🔹 Conexión MongoDB
+mongoose.connect(process.env.MONGODB_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+})
+.then(() => console.log("🟢 MongoDB conectado"))
+.catch(err => console.error("🔴 Error MongoDB:", err));
 
+// 🔹 Modelo Mongoose
 const solicitudSchema = new mongoose.Schema({
-  id: { type: String, required: true }, // id generado en frontend
-  estado: { type: String, default: "abierta" },
-  claseA: {
-    userId: String,
-    nombre: String,
-    asignatura: String,
-    grupo: Number,
-    fecha: String
-  },
-  claseB: {
-    userId: String,
-    nombre: String,
-    asignatura: String,
-    grupo: Number,
-    fecha: String
-  }
+    id: String,
+    estado: String,
+    claseA: Object,
+    claseB: Object
 });
 
 const Solicitud = mongoose.model("Solicitud", solicitudSchema);
 
-// GET todas
+// GET todas las solicitudes
 app.get("/api/solicitudes", async (req, res) => {
-  try {
-    const solicitudes = await Solicitud.find({});
-    res.json(solicitudes);
-  } catch (err) {
-    res.status(500).json({ error: "Error al obtener solicitudes" });
-  }
+    try {
+        const solicitudes = await Solicitud.find({});
+        res.json(solicitudes);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al obtener solicitudes" });
+    }
 });
-// POST nueva
+
+// POST nueva solicitud
 app.post("/api/solicitudes", async (req, res) => {
-  try {
-    const nueva = new Solicitud(req.body);
-    await nueva.save();
-    res.json({ ok: true, solicitud: nueva });
-  } catch (err) {
-    res.status(500).json({ error: "Error al crear solicitud" });
-  }
+    try {
+        const nueva = new Solicitud(req.body);
+        await nueva.save();
+        res.json(nueva);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al crear solicitud" });
+    }
 });
 
 // PUT aceptar intercambio
 app.put("/api/solicitudes/:id", async (req, res) => {
-  try {
-    const solicitud = await Solicitud.findOne({ id: req.params.id });
-    if (!solicitud) return res.status(404).json({ error: "No encontrada" });
+    try {
+        const solicitud = await Solicitud.findOne({ id: req.params.id });
+        if (!solicitud) return res.status(404).json({ error: "No encontrada" });
 
-    solicitud.estado = "intercambiada";
-    solicitud.claseB = req.body.claseB;
+        solicitud.estado = "intercambiada";
+        solicitud.claseB = req.body.claseB;
+        await solicitud.save();
 
-    await solicitud.save();
-    res.json({ ok: true, solicitud });
-  } catch (err) {
-    res.status(500).json({ error: "Error al actualizar solicitud" });
-  }
+        res.json(solicitud);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al actualizar solicitud" });
+    }
 });
 
+// DELETE (opcional)
 app.delete("/api/solicitudes/:id", async (req, res) => {
-  try {
-    await Solicitud.deleteOne({ id: req.params.id });
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: "Error al eliminar solicitud" });
-  }
+    try {
+        await Solicitud.deleteOne({ id: req.params.id });
+        res.json({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al eliminar" });
+    }
 });
 
 // fallback
