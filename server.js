@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // 🔹 Conexión MongoDB
-mongoose.connect(process.env.MONGODB_URI, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("🟢 MongoDB conectado"))
 .catch(err => console.error("🔴 Error MongoDB:", err));
 
