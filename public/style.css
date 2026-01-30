@@ -28,18 +28,18 @@ body {
 }
 
 .header h1 {
-    font-size: 1.8rem;
-    margin-bottom: 6px;
+    font-size: 4rem;
+    margin-bottom: 10px;
 }
 
 #usuario-actual {
-    font-size: 1rem;
+    font-size: 2.5rem;
     opacity: 0.7;
 }
 
 .btn-dev {
     margin-top: 8px;
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     background: transparent;
     border: none;
     color: #666;
@@ -76,6 +76,9 @@ body {
 
 .solicitud.mia {
     border-left: 6px solid #2196f3;
+}
+.solicitud strong {
+    font-size: 1rem;
 }
 
 /* BOTONES */
