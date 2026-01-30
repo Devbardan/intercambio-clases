@@ -55,34 +55,83 @@ body {
     padding-bottom: 80px; /* espacio para botón */
 }
 
-/* TARJETA SOLICITUD */
-.solicitud {
-    background: white;
-    border-radius: 14px;
+.card-solicitud {
+    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    border-radius: 20px;
     padding: 16px;
-    font-size: 1.05rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
-/* ESTADOS */
-.solicitud.pendiente {
-    border-left: 6px solid #4caf50;
+/* HEADER */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    opacity: 0.85;
 }
 
-.solicitud.intercambiada {
-    border-left: 6px solid #f44336;
+/* BODY */
+.card-body {
+    text-align: center;
 }
 
-.solicitud.mia {
-    border-left: 6px solid #2196f3;
+.card-body .asignatura {
+    font-size: 1.3rem;
+    margin: 6px 0 2px;
 }
-.solicitud strong {
-    font-size: 2rem;
+
+.card-body .solicitante {
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
-.solicitud{
-    font-size: 2.5rem;
+
+/* ESTADO */
+.estado {
+    display: flex;
+    justify-content: center;
 }
+
+.estado-badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Estados */
+.estado-pendiente {
+    background: #2ecc71;
+    color: #0b3d1f;
+}
+
+.estado-intercambiada {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.estado-mia {
+    background: #3498db;
+    color: #fff;
+}
+
+/* DIVIDER */
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    margin: 6px 0;
+}
+
+/* RESULTADO */
+.resultado {
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
 
 /* BOTONES */
 button {
