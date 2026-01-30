@@ -260,6 +260,19 @@ formulario.addEventListener("submit", async e => {
     mostrarSolicitudes();
 });
 
+function mostrarAlertaInfo(texto) {
+  const div = document.getElementById("alerta-info");
+  div.textContent = texto;
+  div.classList.remove("oculto");
+}
+
+function mostrarAlertaError(texto) {
+  const div = document.getElementById("alerta-error");
+  div.textContent = texto;
+  div.classList.remove("oculto");
+}
+
+
 function resetUsuario() {
     localStorage.removeItem("usuario");
     location.reload();
