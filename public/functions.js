@@ -54,6 +54,7 @@ async function obtenerSolicitudes() {
 }
 
 // ================= MOSTRAR SOLICITUDES =================
+// ================= MOSTRAR SOLICITUDES =================
 async function mostrarSolicitudes() {
     const solicitudes = await obtenerSolicitudes();
     lista.innerHTML = "";
@@ -77,76 +78,73 @@ async function mostrarSolicitudes() {
     const ordenadas = [...mias, ...pendientes, ...intercambiadas];
 
     ordenadas.forEach(solicitud => {
-        const div = document.createElement("div");
-        div.classList.add("solicitud");
+        const card = document.createElement("div");
+        card.classList.add("solicitud", "card");
 
-        let textoEstado = "";
-        let claseEstado = "";
+        // ===== ESTADO VISUAL =====
+        let estadoClase = "estado-pendiente";
+        let estadoTexto = "Pendiente";
 
-        if (
-            solicitud.estado === "intercambiada" &&
-            (solicitud.claseA.userId === usuario.id ||
-             solicitud.claseB?.userId === usuario.id)
-        ) {
-            textoEstado = "Intercambio en el que participaste";
-            claseEstado = "mia";
-        } else if (solicitud.estado === "abierta") {
-            textoEstado = "Pendiente de intercambio";
-            claseEstado = "pendiente";
-        } else {
-            textoEstado = "Intercambio realizado";
-            claseEstado = "intercambiada";
+        if (solicitud.estado === "intercambiada") {
+            estadoTexto = "Intercambiado";
+            estadoClase =
+                solicitud.claseA.userId === usuario.id ||
+                solicitud.claseB?.userId === usuario.id
+                    ? "estado-mia"
+                    : "estado-intercambiada";
         }
 
-        div.classList.add(claseEstado);
-
-        // ===== RESULTADO DEL INTERCAMBIO =====
-        let infoIntercambio = "";
+        // ===== RESULTADO SIMPLE =====
+        let resultadoHTML = "";
         if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-            infoIntercambio = `
-                <br><strong>Resultado del intercambio:</strong><br>
-
-                <div class="resultado">
-                    ✅ ${solicitud.claseA.nombre} quedó con:
-                    <br>
-                    ${solicitud.claseA.asignatura}
-                    (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
-                </div>
-
-                <div class="resultado">
-                    ✅ ${solicitud.claseB.nombre} quedó con:
-                    <br>
-                    ${solicitud.claseA.asignatura}
-                    (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
+            resultadoHTML = `
+                <div class="resultado-simple">
+                    ↔ Grupo ${solicitud.claseA.grupo} → Grupo ${solicitud.claseB.grupo}
+                    · ${solicitud.claseB.fecha}
                 </div>
             `;
         }
 
+        // ===== BOTÓN =====
         let botonAceptar = "";
         if (
             solicitud.estado === "abierta" &&
             solicitud.claseA.userId !== usuario.id
         ) {
             botonAceptar = `
-                <button onclick="prepararFormulario('${solicitud.id}')">
+                <button class="btn-aceptar"
+                    onclick="prepararFormulario('${solicitud.id}')">
                     Aceptar intercambio
                 </button>
             `;
         }
 
-        div.innerHTML = `
-            <strong>${solicitud.claseA.asignatura}</strong><br>
-            Grupo: ${solicitud.claseA.grupo}<br>
-            Fecha: ${solicitud.claseA.fecha}<br>
-            Solicitado por: ${solicitud.claseA.nombre}<br>
-            <strong>Estado:</strong> ${textoEstado}
-            ${infoIntercambio}
+        // ===== HTML DE LA CARD =====
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="fecha">${solicitud.claseA.fecha}</span>
+                <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
+            </div>
+
+            <div class="card-body">
+                <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
+                <p class="solicitante">${solicitud.claseA.nombre}</p>
+            </div>
+
+            <div class="estado">
+                <span class="estado-badge ${estadoClase}">
+                    ${estadoTexto}
+                </span>
+            </div>
+
+            ${resultadoHTML}
             ${botonAceptar}
         `;
 
-        lista.appendChild(div);
+        lista.appendChild(card);
     });
 }
+
 
 // ================= PREPARAR FORMULARIO =================
 async function prepararFormulario(idSolicitud) {
