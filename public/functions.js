@@ -58,7 +58,9 @@ async function mostrarSolicitudes() {
     const solicitudes = await obtenerSolicitudes();
     lista.innerHTML = "";
 
-    const ordenadas = [];
+    const mias = [];
+    const pendientes = [];
+    const intercambiadas = [];
 
     solicitudes.forEach(s => {
         if (!s.claseA) return;
@@ -67,75 +69,82 @@ async function mostrarSolicitudes() {
             s.estado === "intercambiada" &&
             (s.claseA.userId === usuario.id || s.claseB?.userId === usuario.id);
 
-        if (soyParte) ordenadas.unshift(s);
-        else ordenadas.push(s);
+        if (soyParte) mias.push(s);
+        else if (s.estado === "abierta") pendientes.push(s);
+        else intercambiadas.push(s);
     });
 
-    ordenadas.forEach(s => {
-        const card = document.createElement("div");
-        card.className = "card-solicitud";
+    const ordenadas = [...mias, ...pendientes, ...intercambiadas];
 
-        // ===== ESTADO =====
-        let estadoTexto = "Pendiente";
-        let estadoClase = "estado-pendiente";
+    ordenadas.forEach(solicitud => {
+        const div = document.createElement("div");
+        div.classList.add("solicitud");
 
-        if (s.estado === "intercambiada") {
-            estadoTexto = "Intercambiado";
-            estadoClase =
-                s.claseA.userId === usuario.id || s.claseB?.userId === usuario.id
-                    ? "estado-mia"
-                    : "estado-intercambiada";
+        let textoEstado = "";
+        let claseEstado = "";
+
+        if (
+            solicitud.estado === "intercambiada" &&
+            (solicitud.claseA.userId === usuario.id ||
+             solicitud.claseB?.userId === usuario.id)
+        ) {
+            textoEstado = "Intercambio en el que participaste";
+            claseEstado = "mia";
+        } else if (solicitud.estado === "abierta") {
+            textoEstado = "Pendiente de intercambio";
+            claseEstado = "pendiente";
+        } else {
+            textoEstado = "Intercambio realizado";
+            claseEstado = "intercambiada";
         }
 
-        // ===== RESULTADO =====
-        let resultadoHTML = "";
-        if (s.estado === "intercambiada" && s.claseB) {
-            const soyA = s.claseA.userId === usuario.id;
-            const origen = soyA ? s.claseA : s.claseB;
-            const destino = soyA ? s.claseB : s.claseA;
+        div.classList.add(claseEstado);
 
-            resultadoHTML = `
-                <div class="divider"></div>
+        // ===== RESULTADO DEL INTERCAMBIO =====
+        let infoIntercambio = "";
+        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
+            infoIntercambio = `
+                <br><strong>Resultado del intercambio:</strong><br>
+
                 <div class="resultado">
-                    ↔ Grupo ${origen.grupo} → Grupo ${destino.grupo} · ${destino.fecha}
+                    ✅ ${solicitud.claseA.nombre} quedó con:
+                    <br>
+                    ${solicitud.claseA.asignatura}
+                    (Grupo ${solicitud.claseB.grupo}, ${solicitud.claseB.fecha})
+                </div>
+
+                <div class="resultado">
+                    ✅ ${solicitud.claseB.nombre} quedó con:
+                    <br>
+                    ${solicitud.claseA.asignatura}
+                    (Grupo ${solicitud.claseA.grupo}, ${solicitud.claseA.fecha})
                 </div>
             `;
         }
 
-        // ===== BOTÓN =====
         let botonAceptar = "";
-        if (s.estado === "abierta" && s.claseA.userId !== usuario.id) {
+        if (
+            solicitud.estado === "abierta" &&
+            solicitud.claseA.userId !== usuario.id
+        ) {
             botonAceptar = `
-                <button class="btn-aceptar"
-                    onclick="prepararFormulario('${s.id}')">
+                <button onclick="prepararFormulario('${solicitud.id}')">
                     Aceptar intercambio
                 </button>
             `;
         }
 
-        // ===== HTML =====
-        card.innerHTML = `
-            <div class="card-header">
-                <span class="fecha">${s.claseA.fecha}</span>
-                <span class="grupo">Grupo ${s.claseA.grupo}</span>
-            </div>
-
-            <div class="card-body">
-                <h3 class="asignatura">${s.claseA.asignatura}</h3>
-                <p class="solicitante">${s.claseA.nombre}</p>
-            </div>
-
-            <div class="estado">
-                <span class="estado-badge ${estadoClase}">
-                    ${estadoTexto}
-                </span>
-            </div>
-
-            ${resultadoHTML}
+        div.innerHTML = `
+            <strong>${solicitud.claseA.asignatura}</strong><br>
+            Grupo: ${solicitud.claseA.grupo}<br>
+            Fecha: ${solicitud.claseA.fecha}<br>
+            Solicitado por: ${solicitud.claseA.nombre}<br>
+            <strong>Estado:</strong> ${textoEstado}
+            ${infoIntercambio}
             ${botonAceptar}
         `;
 
-        lista.appendChild(card);
+        lista.appendChild(div);
     });
 }
 
@@ -203,6 +212,7 @@ formulario.addEventListener("submit", async e => {
 
     const solicitudes = await obtenerSolicitudes();
 
+    // NUEVA
     if (!solicitudPendienteId) {
         await fetch("/api/solicitudes", {
             method: "POST",
@@ -220,7 +230,12 @@ formulario.addEventListener("submit", async e => {
                 claseB: null
             })
         });
-    } else {
+    }
+    // ACEPTAR
+    else {
+        const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
+        if (!solicitud) return;
+
         const usada = document.getElementById("clases-propias")?.value;
         if (usada) {
             await fetch(`/api/solicitudes/${usada}`, { method: "DELETE" });
@@ -243,12 +258,24 @@ formulario.addEventListener("submit", async e => {
     formulario.reset();
     formularioContainer.classList.add("oculto");
     mostrarSolicitudes();
-};
+});
+
+function mostrarAlertaInfo(texto) {
+  const div = document.getElementById("alerta-info");
+  div.textContent = texto;
+  div.classList.remove("oculto");
+}
+
+function mostrarAlertaError(texto) {
+  const div = document.getElementById("alerta-error");
+  div.textContent = texto;
+  div.classList.remove("oculto");
+}
+
 
 function resetUsuario() {
     localStorage.removeItem("usuario");
     location.reload();
 }
-
 // ================= INICIO =================
 mostrarSolicitudes();
