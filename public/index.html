@@ -6,40 +6,66 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
+	<p id="usuario-actual"></p>
+	<button onclick="resetUsuario()">Cambiar usuario (DEV)</button>
+
 
     <h1>Intercambio de Clases</h1>
-    <p id="usuario-actual"></p>
 
-    <!-- ALERTA INFORMATIVA -->
-    <div id="alerta-info" class="alerta info oculto"></div>
+    <!-- Listado de solicitudes -->
+    <section id="lista-solicitudes">
+        <!-- Aquí se insertarán las solicitudes con JS -->
+    </section>
 
-    <!-- ALERTA ERROR -->
-    <div id="alerta-error" class="alerta error oculto"></div>
+    <!-- Botón para mostrar el formulario -->
+    <button id="btn-formulario">+ Solicitar intercambio</button>
 
-    <!-- LISTA SCROLLEABLE -->
-    <div id="lista-solicitudes" class="lista"></div>
+    <!-- Formulario -->
+    <section id="formulario-container" class="oculto">
+        <div id="info-intercambio" class="alerta alerta-info oculto">
 
-    <!-- BOTÓN PRINCIPAL -->
-    <button id="btn-formulario" class="btn-principal">
-      Solicitar intercambio
-    </button>
+    <!-- 🔴 Alerta de error -->
+    <div id="error-intercambio" class="alerta alerta-error oculto"></div>
 
-  </div>
+    <!-- 🟡 Alerta informativa -->
+    <div class="alerta alerta-info-texto">
+        ⚠️ <strong>Atención:</strong><br>
+        Ingresa aquí la <strong>clase a la que tú NO podrás asistir</strong>
+        (grupo y fecha).<br>
+        Esta clase será intercambiada por la del otro estudiante.
+    </div>
 
-  <!-- FORMULARIO DESLIZABLE -->
-  <div id="formulario-container" class="formulario-container oculto">
-    <button id="cerrar-formulario" class="cerrar">✕</button>
+</div>
+<div id="selector-clase-propia" class="oculto">
+    <label for="clases-propias">
+        Selecciona una de tus clases ya registradas:
+    </label>
+    <select id="clases-propias">
+        <option value="">-- Usar otra clase --</option>
+    </select>
+</div>
+        <form id="formulario">
+        	<button type="button" id="cerrar-formulario">✕</button>
+            <h2>Nueva solicitud</h2>
+            <label>
+                Asignatura
+                <input type="text" id="asignatura" required>
+            </label>
 
-    <!-- INFO INTERCAMBIO -->
-    <div id="info-intercambio" class="alerta info oculto"></div>
+            <label>
+                Grupo
+                <input type="number" id="grupo" required>
+            </label>
 
-    <form id="formulario">
-      <!-- tus inputs existentes -->
-    </form>
+            <label>
+                Fecha a la que no puede asistir
+                <input type="date" id="fecha" required>
+            </label>
 
-    <!-- ERROR FORMULARIO -->
-    <div id="error-intercambio" class="alerta error oculto"></div>
-  </div>
+            <button type="submit">Agregar</button>
+        </form>
+    </section>
+
+    <script src="functions.js"></script>
 </body>
 </html>
