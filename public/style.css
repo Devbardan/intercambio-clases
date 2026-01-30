@@ -1,163 +1,208 @@
-/* RESET */
+/* RESET BÁSICO */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-  background: #f7f7f7;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
+    background: #f6f7f9;
+    color: #222;
+    min-height: 100vh;
 }
 
-/* APP */
+/* CONTENEDOR PRINCIPAL */
 .app {
-  width: 100%;
-  max-width: 600px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-/* TITULO */
-h1 {
-  text-align: center;
-  margin-bottom: 5px;
+/* HEADER */
+.header {
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
 }
 
 #usuario-actual {
-  text-align: center;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 10px;
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.btn-dev {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    background: transparent;
+    border: none;
+    color: #666;
+}
+
+/* LISTA DE SOLICITUDES */
+.lista-solicitudes {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 80px; /* espacio para botón */
+}
+
+/* TARJETA SOLICITUD */
+.solicitud {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    line-height: 1.4;
+}
+
+/* ESTADOS */
+.solicitud.pendiente {
+    border-left: 6px solid #4caf50;
+}
+
+.solicitud.intercambiada {
+    border-left: 6px solid #f44336;
+}
+
+.solicitud.mia {
+    border-left: 6px solid #2196f3;
+}
+
+/* BOTONES */
+button {
+    cursor: pointer;
+}
+
+.btn-principal {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    padding: 16px;
+    font-size: 1.2rem;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 /* ALERTAS */
 .alerta {
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 10px;
-  animation: aparecer 0.25s ease;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 1rem;
 }
 
-.alerta.info {
-  background: #e8f2ff;
-  color: #1f4fd8;
+.alerta-info {
+    background: #e3f2fd;
+    color: #0d47a1;
 }
 
-.alerta.error {
-  background: #ffe8e8;
-  color: #c0392b;
+.alerta-info-texto {
+    background: #fff8e1;
+    color: #8a6d3b;
 }
 
-@keyframes aparecer {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.alerta-error {
+    background: #fdecea;
+    color: #b71c1c;
 }
 
-/* LISTA */
-.lista {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 5px;
+.oculto {
+    display: none;
 }
 
-/* TARJETAS */
-.solicitud {
-  background: white;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-/* ESTADOS */
-.pendiente {
-  border-left: 4px solid #2ecc71;
-}
-
-.intercambiada {
-  border-left: 4px solid #e74c3c;
-  opacity: 0.75;
-}
-
-.mia {
-  border-left: 4px solid #3498db;
-}
-
-/* BOTÓN */
-.btn-principal {
-  margin-top: 10px;
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  background: black;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* FORMULARIO */
+/* FORMULARIO DESLIZABLE */
 .formulario-container {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 100%);
-  width: 100%;
-  max-width: 600px;
-  background: white;
-  padding: 20px;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
-  transition: transform 0.35s ease;
-  z-index: 100;
+    position: fixed;
+    inset: 0;
+    background: white;
+    padding: 20px;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.35s ease;
+    z-index: 100;
 }
 
 .formulario-container:not(.oculto) {
-  transform: translate(-50%, 0);
+    transform: translateY(0);
 }
 
-/* CERRAR */
-.cerrar {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
+/* CERRAR FORM */
+.cerrar-formulario {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.4rem;
+    background: none;
+    border: none;
 }
 
-/* INPUTS */
-form input,
-form select,
-form button {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+/* FORMULARIO */
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 40px;
 }
 
-form button {
-  background: black;
-  color: white;
-  border: none;
-  cursor: pointer;
+.formulario h2 {
+    font-size: 1.6rem;
+    text-align: center;
 }
 
-/* UTIL */
-.oculto {
-  display: none;
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 1.05rem;
+}
+
+input, select {
+    padding: 14px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+}
+
+.btn-submit {
+    padding: 16px;
+    font-size: 1.2rem;
+    border-radius: 14px;
+    background: #4caf50;
+    color: white;
+    border: none;
+}
+
+/* RESULTADO INTERCAMBIO */
+.resultado {
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 768px) {
+    .app {
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .btn-principal {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 400px;
+    }
 }
