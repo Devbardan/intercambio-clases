@@ -260,5 +260,9 @@ formulario.addEventListener("submit", async e => {
     mostrarSolicitudes();
 });
 
+function resetUsuario() {
+    localStorage.removeItem("usuario");
+    location.reload();
+}
 // ================= INICIO =================
 mostrarSolicitudes();
