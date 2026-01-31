@@ -54,7 +54,6 @@ async function obtenerSolicitudes() {
 }
 
 // ================= MOSTRAR SOLICITUDES =================
-// ================= MOSTRAR SOLICITUDES =================
 async function mostrarSolicitudes() {
     const solicitudes = await obtenerSolicitudes();
     lista.innerHTML = "";
@@ -79,7 +78,7 @@ async function mostrarSolicitudes() {
 
     ordenadas.forEach(solicitud => {
         const card = document.createElement("div");
-        card.classList.add("solicitud", "card");
+        card.classList.add("solicitud-card");
 
         // ===== ESTADO VISUAL =====
         let estadoClase = "estado-pendiente";

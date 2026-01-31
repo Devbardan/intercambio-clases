@@ -54,7 +54,7 @@ body {
     gap: 12px;
     padding-bottom: 80px; /* espacio para botón */
 }
-.solicitud .card{
+.solicitud-card{
     background: #ddd;
     margin: 3rem;
 }
@@ -76,6 +76,7 @@ body {
     justify-content: space-between;
     font-size: 0.8rem;
     opacity: 0.85;
+    margin: 0 5rem;
 }
 
 /* BODY */
@@ -84,12 +85,12 @@ body {
 }
 
 .card-body .asignatura {
-    font-size: 1.3rem;
+    font-size: 3.3rem;
     margin: 6px 0 2px;
 }
 
 .card-body .solicitante {
-    font-size: 0.9rem;
+    font-size: 1.9rem;
     opacity: 0.8;
 }
 
