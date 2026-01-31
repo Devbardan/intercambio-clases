@@ -164,7 +164,7 @@ button {
 .alerta {
     padding: 14px;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 1.7rem;
 }
 
 .alerta-info {
@@ -188,7 +188,7 @@ button {
 
 /* FORMULARIO DESLIZABLE */
 .formulario-container {
-    position: fixed;
+    position: sticky;
     inset: 0;
     background: white;
     padding: 20px;
@@ -206,8 +206,8 @@ button {
 .cerrar-formulario {
     position: absolute;
     top: 12px;
-    right: 12px;
-    font-size: 1.4rem;
+    right: 25px;
+    font-size: 3.4rem;
     background: none;
     border: none;
 }
@@ -217,11 +217,11 @@ button {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-top: 40px;
+    margin-top: 10px;
 }
 
 .formulario h2 {
-    font-size: 1.6rem;
+    font-size: 3.5rem;
     text-align: center;
 }
 
@@ -229,7 +229,7 @@ label {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    font-size: 1.05rem;
+    font-size: 2rem;
 }
 
 input, select {
@@ -241,7 +241,7 @@ input, select {
 
 .btn-submit {
     padding: 16px;
-    font-size: 1.2rem;
+    font-size: 2.5rem;
     border-radius: 14px;
     background: #4caf50;
     color: white;
