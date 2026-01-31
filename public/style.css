@@ -56,7 +56,8 @@ body {
 }
 .solicitud-card{
     background: #ddd;
-    margin: 3rem;
+    margin: 4rem;
+    padding: 2rem;
 }
 
 .card-solicitud {
@@ -74,7 +75,7 @@ body {
 .card-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
+    font-size: 2.8rem;
     opacity: 0.85;
     margin: 0 5rem;
 }
@@ -90,7 +91,7 @@ body {
 }
 
 .card-body .solicitante {
-    font-size: 1.9rem;
+    font-size: 2.9rem;
     opacity: 0.8;
 }
 
