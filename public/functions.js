@@ -77,71 +77,76 @@ async function mostrarSolicitudes() {
     const ordenadas = [...mias, ...pendientes, ...intercambiadas];
 
     ordenadas.forEach(solicitud => {
-        const card = document.createElement("div");
-        card.classList.add("solicitud-card");
+    const card = document.createElement("div");
+    card.classList.add("solicitud-card");
 
-        // ===== ESTADO VISUAL =====
-        let estadoClase = "estado-pendiente";
-        let estadoTexto = "Pendiente";
+    // ===== ESTADO =====
+    let estadoClase = "estado-pendiente";
+    let estadoTexto = "Pendiente";
 
-        if (solicitud.estado === "intercambiada") {
-            estadoTexto = "Intercambiado";
-            estadoClase =
-                solicitud.claseA.userId === usuario.id ||
-                solicitud.claseB?.userId === usuario.id
-                    ? "estado-mia"
-                    : "estado-intercambiada";
-        }
+    if (solicitud.estado === "intercambiada") {
+        estadoTexto = "Intercambiado";
+        estadoClase =
+            solicitud.claseA.userId === usuario.id ||
+            solicitud.claseB?.userId === usuario.id
+                ? "estado-mia"
+                : "estado-intercambiada";
+    }
 
-        // ===== RESULTADO SIMPLE =====
-        let resultadoHTML = "";
-        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-            resultadoHTML = `
-                <div class="resultado-simple">
-                    ↔ Grupo ${solicitud.claseA.grupo} → Grupo ${solicitud.claseB.grupo}
-                    · ${solicitud.claseB.fecha}
+    // ===== CARD CLICKEABLE =====
+    if (
+        solicitud.estado === "abierta" &&
+        solicitud.claseA.userId !== usuario.id
+    ) {
+        card.classList.add("clickeable");
+        card.addEventListener("click", () => {
+            prepararFormulario(solicitud.id);
+        });
+    }
+
+    // ===== RESULTADO VISUAL =====
+    let resultadoHTML = "";
+    if (solicitud.estado === "intercambiada" && solicitud.claseB) {
+        resultadoHTML = `
+            <div class="resultado-intercambio">
+                <div class="resultado-item">
+                    <strong>${solicitud.claseA.nombre}</strong>
+                    <span>Grupo ${solicitud.claseB.grupo}</span>
+                    <span>${solicitud.claseB.fecha}</span>
                 </div>
-            `;
-        }
 
-        // ===== BOTÓN =====
-        let botonAceptar = "";
-        if (
-            solicitud.estado === "abierta" &&
-            solicitud.claseA.userId !== usuario.id
-        ) {
-            botonAceptar = `
-                <button class="btn-aceptar"
-                    onclick="prepararFormulario('${solicitud.id}')">
-                    Aceptar intercambio
-                </button>
-            `;
-        }
-
-        // ===== HTML DE LA CARD =====
-        card.innerHTML = `
-            <div class="card-header">
-                <span class="fecha">${solicitud.claseA.fecha}</span>
-                <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
+                <div class="resultado-item">
+                    <strong>${solicitud.claseB.nombre}</strong>
+                    <span>Grupo ${solicitud.claseA.grupo}</span>
+                    <span>${solicitud.claseA.fecha}</span>
+                </div>
             </div>
-
-            <div class="card-body">
-                <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
-                <p class="solicitante">${solicitud.claseA.nombre}</p>
-            </div>
-
-            <div class="estado">
-                <span class="estado-badge ${estadoClase}">
-                    ${estadoTexto}
-                </span>
-            </div>
-
-            ${resultadoHTML}
-            ${botonAceptar}
         `;
+    }
 
-        lista.appendChild(card);
-    });
+    // ===== HTML FINAL =====
+    card.innerHTML = `
+        <div class="card-header">
+            <span class="fecha">${solicitud.claseA.fecha}</span>
+            <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
+        </div>
+
+        <div class="card-body">
+            <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
+            <p class="solicitante">${solicitud.claseA.nombre}</p>
+        </div>
+
+        <div class="estado">
+            <span class="estado-badge ${estadoClase}">
+                ${estadoTexto}
+            </span>
+        </div>
+
+        ${resultadoHTML}
+    `;
+
+    lista.appendChild(card);
+});
 }
 
 
