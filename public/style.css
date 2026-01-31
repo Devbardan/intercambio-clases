@@ -56,8 +56,9 @@ body {
 }
 .solicitud-card{
     background: #ddd;
-    margin: 4rem;
-    padding: 2rem;
+    margin: 1rem 5rem;
+    padding: 1rem;
+    border-radius: 30px;
 }
 
 .card-solicitud {
@@ -99,12 +100,13 @@ body {
 .estado {
     display: flex;
     justify-content: center;
+    margin: 1rem;
 }
 
 .estado-badge {
     padding: 6px 14px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 1.75rem;
     font-weight: 600;
 }
 
