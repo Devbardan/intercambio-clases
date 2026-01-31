@@ -105,24 +105,25 @@ async function mostrarSolicitudes() {
     }
 
     // ===== RESULTADO VISUAL =====
-    let resultadoHTML = "";
-    if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-        resultadoHTML = `
-            <div class="resultado-intercambio">
-                <div class="resultado-item">
-                    <strong>${solicitud.claseA.nombre}</strong>
-                    <span>Grupo ${solicitud.claseB.grupo}</span>
-                    <span>${solicitud.claseB.fecha}</span>
-                </div>
+    let infoIntercambio = "";
 
-                <div class="resultado-item">
-                    <strong>${solicitud.claseB.nombre}</strong>
-                    <span>Grupo ${solicitud.claseA.grupo}</span>
-                    <span>${solicitud.claseA.fecha}</span>
-                </div>
+if (solicitud.estado === "intercambiada" && solicitud.claseB) {
+    resultadoHTML = `
+        <div class="resultado-intercambio">
+            
+            <div class="resultado-item" data-grupo="Grupo ${solicitud.claseB.grupo}">
+                <strong>${solicitud.claseA.nombre}</strong>
+                <span class="fecha">${solicitud.claseB.fecha}</span>
             </div>
-        `;
-    }
+
+            <div class="resultado-item" data-grupo="Grupo ${solicitud.claseA.grupo}">
+                <strong>${solicitud.claseB.nombre}</strong>
+                <span class="fecha">${solicitud.claseA.fecha}</span>
+            </div>
+
+        </div>
+    `;
+}
 
     // ===== HTML FINAL =====
     card.innerHTML = `
