@@ -161,7 +161,7 @@ body {
 .resultado-item::after {
     content: attr(data-grupo);
     position: absolute;
-    bottom: -28px;
+    bottom: -55px;
     left: 50%;
     transform: translateX(-50%);
     background: #111;
