@@ -178,6 +178,7 @@ body {
 /* Mostrar en hover */
 .resultado-item:hover::after {
     opacity: 1;
+    font-size: 2rem;
 }
 /* BOTONES */
 button {
