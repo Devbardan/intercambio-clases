@@ -54,6 +54,10 @@ body {
     gap: 12px;
     padding-bottom: 80px; /* espacio para botón */
 }
+.solicitud .card{
+    background: #ddd;
+    margin: 3rem;
+}
 
 .card-solicitud {
     background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
