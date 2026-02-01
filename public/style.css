@@ -311,11 +311,8 @@ input, select {
 
     .lista-solicitudes {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 16px;
-
-        /* importante para que no se pegue a los lados */
-        padding: 16px 24px;
+        grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+        gap: 1px;
     }
 
     /* cards más compactas en desktop */
@@ -329,5 +326,21 @@ input, select {
     .solicitud-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .card-header{
+        margin: 0 1rem;
+        font-size: 1rem;
+    }
+    .asignatura{
+        font-size: 1.3rem;
+    }
+    .solicitante{
+        font-size: 0.9rem;
+    }
+    ..estado-badge{
+        font-size: 0.75rem;
+    }
+    .resultado-item{
+        font-size: 1rem;
     }
 }
