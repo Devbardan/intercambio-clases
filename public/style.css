@@ -337,10 +337,10 @@ input, select {
     .card-body .solicitante{
         font-size: 0.9rem;
     }
-    ..estado-badge .estado-mia{
+    .estado-badge .estado-mia{
         font-size: 0.75rem;
     }
     .resultado-item{
-        font-size: 1rem;
+        font-size: .8rem;
     }
 }
