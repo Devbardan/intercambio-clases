@@ -331,13 +331,13 @@ input, select {
         margin: 0 1rem;
         font-size: 1rem;
     }
-    .asignatura{
+    .card-body .asignatura{
         font-size: 1.3rem;
     }
-    .solicitante{
+    .card-body .solicitante{
         font-size: 0.9rem;
     }
-    ..estado-badge{
+    ..estado-badge .estado-mia{
         font-size: 0.75rem;
     }
     .resultado-item{
