@@ -306,10 +306,5 @@ function limpiarAlertaError() {
     div.classList.add("oculto");
 }
 
-
-function resetUsuario() {
-    localStorage.removeItem("usuario");
-    location.reload();
-}
 // ================= INICIO =================
 mostrarSolicitudes();
