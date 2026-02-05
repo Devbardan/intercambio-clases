@@ -51,22 +51,45 @@ app.post("/api/solicitudes", async (req, res) => {
     }
 });
 
-// PUT aceptar intercambio
+// PUT aceptar intercambio (CON VALIDACIONES)
 app.put("/api/solicitudes/:id", async (req, res) => {
     try {
         const solicitud = await Solicitud.findOne({ id: req.params.id });
-        if (!solicitud) return res.status(404).json({ error: "No encontrada" });
+        if (!solicitud) {
+            return res.status(404).json({ error: "Solicitud no encontrada" });
+        }
 
+        const claseB = req.body.claseB;
+        if (!claseB) {
+            return res.status(400).json({ error: "Datos de claseB faltantes" });
+        }
+
+        // 🚫 VALIDACIONES CRÍTICAS
+        if (solicitud.claseA.grupo === claseB.grupo) {
+            return res.status(400).json({
+                error: "No se permite intercambio con el mismo grupo"
+            });
+        }
+
+        if (solicitud.claseA.fecha === claseB.fecha) {
+            return res.status(400).json({
+                error: "No se permite intercambio con la misma fecha"
+            });
+        }
+
+        // ✅ TODO OK → aceptar intercambio
         solicitud.estado = "intercambiada";
-        solicitud.claseB = req.body.claseB;
-        await solicitud.save();
+        solicitud.claseB = claseB;
 
+        await solicitud.save();
         res.json(solicitud);
+
     } catch (err) {
-        console.error(err);
+        console.error("❌ Error PUT /api/solicitudes:", err);
         res.status(500).json({ error: "Error al actualizar solicitud" });
     }
 });
+
 
 // DELETE (opcional)
 app.delete("/api/solicitudes/:id", async (req, res) => {

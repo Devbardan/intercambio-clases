@@ -204,6 +204,7 @@ async function prepararFormulario(idSolicitud) {
 }
 
 // ================= ENVIAR FORMULARIO =================
+// ================= ENVIAR FORMULARIO =================
 formulario.addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -218,7 +219,7 @@ formulario.addEventListener("submit", async e => {
 
     const solicitudes = await obtenerSolicitudes();
 
-    // NUEVA
+    // ================= NUEVA SOLICITUD =================
     if (!solicitudPendienteId) {
         await fetch("/api/solicitudes", {
             method: "POST",
@@ -237,10 +238,22 @@ formulario.addEventListener("submit", async e => {
             })
         });
     }
-    // ACEPTAR
+
+    // ================= ACEPTAR INTERCAMBIO =================
     else {
         const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
         if (!solicitud) return;
+
+        // 🚫 VALIDACIONES CLAVE
+        if (solicitud.claseA.grupo === grupo) {
+            alert("❌ No puedes intercambiar con el mismo grupo");
+            return;
+        }
+
+        if (solicitud.claseA.fecha === fecha) {
+            alert("❌ No puedes intercambiar con la misma fecha");
+            return;
+        }
 
         const usada = document.getElementById("clases-propias")?.value;
         if (usada) {
@@ -265,6 +278,7 @@ formulario.addEventListener("submit", async e => {
     formularioContainer.classList.add("oculto");
     mostrarSolicitudes();
 });
+
 
 function mostrarAlertaInfo(texto) {
   const div = document.getElementById("alerta-info");
