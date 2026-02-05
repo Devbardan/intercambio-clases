@@ -77,78 +77,81 @@ async function mostrarSolicitudes() {
     const ordenadas = [...mias, ...pendientes, ...intercambiadas];
 
     ordenadas.forEach(solicitud => {
-    const card = document.createElement("div");
-    card.classList.add("solicitud-card");
+        const card = document.createElement("div");
+        card.classList.add("solicitud-card");
 
-    // ===== ESTADO =====
-    let estadoClase = "estado-pendiente";
-    let estadoTexto = "Pendiente";
+        // ================= ESTADO =================
+        let estadoClase = "estado-pendiente";
+        let estadoTexto = "Pendiente";
 
-    if (solicitud.estado === "intercambiada") {
-        estadoTexto = "Intercambiado";
-        estadoClase =
-            solicitud.claseA.userId === usuario.id ||
-            solicitud.claseB?.userId === usuario.id
-                ? "estado-mia"
-                : "estado-intercambiada";
-    }
+        if (solicitud.estado === "intercambiada") {
+            estadoTexto = "Intercambiado";
+            estadoClase =
+                solicitud.claseA.userId === usuario.id ||
+                solicitud.claseB?.userId === usuario.id
+                    ? "estado-mia"
+                    : "estado-intercambiada";
+        }
 
-    // ===== CARD CLICKEABLE =====
-    if (
-        solicitud.estado === "abierta" &&
-        solicitud.claseA.userId !== usuario.id
-    ) {
-        card.classList.add("clickeable");
-        card.addEventListener("click", () => {
-            prepararFormulario(solicitud.id);
-        });
-    }
+        // ================= CARD CLICKEABLE =================
+        if (
+            solicitud.estado === "abierta" &&
+            solicitud.claseA.userId !== usuario.id
+        ) {
+            card.classList.add("clickeable");
+            card.addEventListener("click", () => {
+                prepararFormulario(solicitud.id);
+            });
+        }
 
-    // ===== RESULTADO VISUAL =====
-    let infoIntercambio = "";
+        // ================= RESULTADO (SIEMPRE DEFINIDO) =================
+        let resultadoHTML = "";
 
-if (solicitud.estado === "intercambiada" && solicitud.claseB) {
-    resultadoHTML = `
-        <div class="resultado-intercambio">
-            
-            <div class="resultado-item" data-grupo="Grupo ${solicitud.claseB.grupo}">
-                <strong>${solicitud.claseA.nombre}</strong>
-                <span class="fecha">${solicitud.claseB.fecha}</span>
-            </div>
+        if (solicitud.estado === "intercambiada" && solicitud.claseB) {
+            resultadoHTML = `
+                <div class="resultado-intercambio">
 
-            <div class="resultado-item" data-grupo="Grupo ${solicitud.claseA.grupo}">
-                <strong>${solicitud.claseB.nombre}</strong>
+                    <div class="resultado-item"
+                         data-grupo="Grupo ${solicitud.claseB.grupo}">
+                        <strong>${solicitud.claseA.nombre}</strong>
+                        <span class="fecha">${solicitud.claseB.fecha}</span>
+                    </div>
+
+                    <div class="resultado-item"
+                         data-grupo="Grupo ${solicitud.claseA.grupo}">
+                        <strong>${solicitud.claseB.nombre}</strong>
+                        <span class="fecha">${solicitud.claseA.fecha}</span>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // ================= HTML FINAL =================
+        card.innerHTML = `
+            <div class="card-header">
                 <span class="fecha">${solicitud.claseA.fecha}</span>
+                <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
             </div>
 
-        </div>
-    `;
+            <div class="card-body">
+                <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
+                <p class="solicitante">${solicitud.claseA.nombre}</p>
+            </div>
+
+            <div class="estado">
+                <span class="estado-badge ${estadoClase}">
+                    ${estadoTexto}
+                </span>
+            </div>
+
+            ${resultadoHTML}
+        `;
+
+        lista.appendChild(card);
+    });
 }
 
-    // ===== HTML FINAL =====
-    card.innerHTML = `
-        <div class="card-header">
-            <span class="fecha">${solicitud.claseA.fecha}</span>
-            <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
-        </div>
-
-        <div class="card-body">
-            <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
-            <p class="solicitante">${solicitud.claseA.nombre}</p>
-        </div>
-
-        <div class="estado">
-            <span class="estado-badge ${estadoClase}">
-                ${estadoTexto}
-            </span>
-        </div>
-
-        ${resultadoHTML}
-    `;
-
-    lista.appendChild(card);
-});
-}
 
 
 // ================= PREPARAR FORMULARIO =================
