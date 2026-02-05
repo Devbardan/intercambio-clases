@@ -1,5 +1,4 @@
 // functions.js
-alert("Bienvenido a el sistema de switch aqui podras cambiar tus clases con otros compañeros");
 
 const btnFormulario = document.getElementById("btn-formulario");
 const formularioContainer = document.getElementById("formulario-container");
