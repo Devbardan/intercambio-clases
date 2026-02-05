@@ -305,6 +305,21 @@ input, select {
         transform: translateX(-50%);
         width: 500px;
     }
+    .card-header{
+        font-size: 1.5rem;
+    }
+    .card-body .asignatura{
+        font-size: 2rem;
+    }
+    .card-body .solicitante{
+        font-size: 1.5rem;
+    }
+    .estado-badge .estado-mia{
+        font-size: 1.2rem;
+    }
+    .resultado-item{
+        font-size: 1.2rem;
+    }
 }
 @media (min-width: 900px) {
 
@@ -346,7 +361,7 @@ input, select {
     }
 
     .resultado-item {
-        font-size: 0.9rem;
+        font-size: 1.9rem;
     }
 }
 @media (hover: none) {
