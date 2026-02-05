@@ -148,9 +148,8 @@ body {
 .resultado-item{
     margin: 5px;
     border-radius: 20px;
-    background-color: #2ecc71 !important;
+    background-color: #2ecc71;
     flex: 1;
-    background: #f5f5f5;
     border-radius: 12px;
     padding: 10px;
     text-align: center;
@@ -312,10 +311,9 @@ input, select {
     .lista-solicitudes {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
-        gap: 1px;
+        gap: 16px;
     }
 
-    /* cards más compactas en desktop */
     .solicitud-card {
         height: auto;
         min-height: 160px;
@@ -323,24 +321,38 @@ input, select {
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
+    /* SOLO efecto visual */
     .solicitud-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        .card-header{
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    /* tamaños desktop FIJOS */
+    .card-header {
         margin: 0 1rem;
         font-size: 1rem;
     }
-    .card-body .asignatura{
-        font-size: 1.3rem;
+
+    .card-body .asignatura {
+        font-size: 1.4rem;
     }
-    .card-body .solicitante{
+
+    .card-body .solicitante {
+        font-size: 1rem;
+    }
+
+    .estado-badge {
+        font-size: 0.85rem;
+    }
+
+    .resultado-item {
         font-size: 0.9rem;
     }
-    .estado-badge .estado-mia{
-        font-size: 0.75rem;
-    }
-    .resultado-item{
-        font-size: .8rem;
-    }
+}
+@media (hover: none) {
+    .solicitud-card:hover {
+        transform: none;
+        box-shadow: none;
     }
 }
+
