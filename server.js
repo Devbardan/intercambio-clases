@@ -59,6 +59,12 @@ app.put("/api/solicitudes/:id", async (req, res) => {
             return res.status(404).json({ error: "Solicitud no encontrada" });
         }
 
+        if (solicitud.estado === "intercambiada") {
+            return res.status(400).json({
+                error: "Esta solicitud ya fue intercambiada"
+            });
+        }
+
         const claseB = req.body.claseB;
         if (!claseB) {
             return res.status(400).json({ error: "Datos de claseB faltantes" });

@@ -36,6 +36,7 @@ btnFormulario.addEventListener("click", () => {
     formulario.reset();
     formularioContainer.classList.toggle("oculto");
     document.getElementById("info-intercambio").classList.add("oculto");
+    document.getElementById("alerta-error").classList.add("oculto");
 
     const inputAsignatura = document.getElementById("asignatura");
     inputAsignatura.disabled = false;
@@ -204,7 +205,6 @@ async function prepararFormulario(idSolicitud) {
 }
 
 // ================= ENVIAR FORMULARIO =================
-// ================= ENVIAR FORMULARIO =================
 formulario.addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -213,7 +213,7 @@ formulario.addEventListener("submit", async e => {
     const fecha = document.getElementById("fecha").value;
 
     if (!grupo || !fecha) {
-        alert("Completa todos los campos");
+        mostrarAlertaError("Completa todos los campos");
         return;
     }
 
@@ -241,38 +241,36 @@ formulario.addEventListener("submit", async e => {
 
     // ================= ACEPTAR INTERCAMBIO =================
     else {
-        const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
-        if (!solicitud) return;
+    const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
+    if (!solicitud) return;
 
-        // 🚫 VALIDACIONES CLAVE
-        if (solicitud.claseA.grupo === grupo) {
-            alert("❌ No puedes intercambiar con el mismo grupo");
-            return;
-        }
-
-        if (solicitud.claseA.fecha === fecha) {
-            alert("❌ No puedes intercambiar con la misma fecha");
-            return;
-        }
-
-        const usada = document.getElementById("clases-propias")?.value;
-        if (usada) {
-            await fetch(`/api/solicitudes/${usada}`, { method: "DELETE" });
-        }
-
-        await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                claseB: {
-                    userId: usuario.id,
-                    nombre: usuario.nombre,
-                    grupo,
-                    fecha
-                }
-            })
-        });
+    const usada = document.getElementById("clases-propias")?.value;
+    if (usada) {
+        await fetch(`/api/solicitudes/${usada}`, { method: "DELETE" });
     }
+
+    const response = await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            claseB: {
+                userId: usuario.id,
+                nombre: usuario.nombre,
+                grupo,
+                fecha
+            }
+        })
+    });
+
+    const data = await response.json();
+
+    // 🚫 ERRORES DEL BACKEND → ALERTA EN FORMULARIO
+    if (!response.ok) {
+        mostrarAlertaError(`⚠️ ${data.error}`);
+        return;
+    }
+}
+
 
     formulario.reset();
     formularioContainer.classList.add("oculto");
