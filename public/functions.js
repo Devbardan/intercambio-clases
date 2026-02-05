@@ -169,7 +169,6 @@ async function prepararFormulario(idSolicitud) {
     limpiarAlertaError();
     solicitudPendienteId = idSolicitud;
     formularioContainer.classList.remove("oculto");
-    document.getElementById("info-intercambio").classList.remove("oculto");
 
     const solicitudes = await obtenerSolicitudes();
     const solicitud = solicitudes.find(s => s.id === idSolicitud);
