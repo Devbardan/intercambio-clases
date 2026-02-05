@@ -330,19 +330,19 @@ input, select {
     /* tamaños desktop FIJOS */
     .card-header {
         margin: 0 1rem;
-        font-size: 1rem;
+        font-size: 2.5rem;
     }
 
-    .card-body .asignatura {
-        font-size: 1.4rem;
+    .card-body {
+        font-size: 2.4rem;
     }
 
     .card-body .solicitante {
-        font-size: 1rem;
+        font-size: 2rem;
     }
 
-    .estado-badge {
-        font-size: 0.85rem;
+    .estado {
+        font-size: 1.8rem;
     }
 
     .resultado-item {

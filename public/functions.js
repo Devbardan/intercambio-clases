@@ -113,13 +113,13 @@ async function mostrarSolicitudes() {
 
                     <div class="resultado-item"
                          data-grupo="Grupo ${solicitud.claseB.grupo}">
-                        <strong>${solicitud.claseA.nombre}</strong>
+                        <strong>${solicitud.claseA.nombre}</strong><br>
                         <span class="fecha">${solicitud.claseB.fecha}</span>
                     </div>
 
                     <div class="resultado-item"
                          data-grupo="Grupo ${solicitud.claseA.grupo}">
-                        <strong>${solicitud.claseB.nombre}</strong>
+                        <strong>${solicitud.claseB.nombre}</strong><br>
                         <span class="fecha">${solicitud.claseA.fecha}</span>
                     </div>
 
