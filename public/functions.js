@@ -101,8 +101,17 @@ async function mostrarSolicitudes() {
         ) {
             card.classList.add("clickeable");
             card.addEventListener("click", () => {
-                prepararFormulario(solicitud.id);
-            });
+
+    // 1️⃣ llevar la card arriba
+    card.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    // 2️⃣ abrir formulario
+    prepararFormulario(solicitud.id);
+});
+
         }
 
         // ================= RESULTADO (SIEMPRE DEFINIDO) =================
@@ -157,6 +166,7 @@ async function mostrarSolicitudes() {
 
 // ================= PREPARAR FORMULARIO =================
 async function prepararFormulario(idSolicitud) {
+    limpiarAlertaError();
     solicitudPendienteId = idSolicitud;
     formularioContainer.classList.remove("oculto");
     document.getElementById("info-intercambio").classList.remove("oculto");
@@ -278,16 +288,23 @@ formulario.addEventListener("submit", async e => {
 });
 
 
-function mostrarAlertaInfo(texto) {
-  const div = document.getElementById("alerta-info");
-  div.textContent = texto;
-  div.classList.remove("oculto");
+function mostrarAlertaError(texto) {
+    const div = document.getElementById("alerta-error");
+    if (!div) return;
+
+    div.textContent = texto;
+    div.classList.remove("oculto");
+
+    // scroll automático al formulario
+    div.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-function mostrarAlertaError(texto) {
-  const div = document.getElementById("alerta-error");
-  div.textContent = texto;
-  div.classList.remove("oculto");
+function limpiarAlertaError() {
+    const div = document.getElementById("alerta-error");
+    if (!div) return;
+
+    div.textContent = "";
+    div.classList.add("oculto");
 }
 
 
