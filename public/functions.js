@@ -10,6 +10,21 @@ document.getElementById("cerrar-formulario").addEventListener("click", () => {
     formularioContainer.classList.add("oculto");
 });
 
+function establecerFechaMinima() {
+    const inputFecha = document.getElementById("fecha");
+    if (!inputFecha) return;
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dd = String(hoy.getDate()).padStart(2, "0");
+
+    inputFecha.min = `${yyyy}-${mm}-${dd}`;
+}
+
+
 let solicitudPendienteId = null;
 
 // ================= UTILIDADES =================
@@ -165,6 +180,7 @@ async function mostrarSolicitudes() {
 
 // ================= PREPARAR FORMULARIO =================
 async function prepararFormulario(idSolicitud) {
+    establecerFechaMinima();
     limpiarAlertaError();
     solicitudPendienteId = idSolicitud;
     formularioContainer.classList.remove("oculto");
@@ -224,6 +240,18 @@ formulario.addEventListener("submit", async e => {
         mostrarAlertaError("Completa todos los campos");
         return;
     }
+
+    const fechaSeleccionada = new Date(fecha);
+fechaSeleccionada.setHours(0, 0, 0, 0);
+
+const hoy = new Date();
+hoy.setHours(0, 0, 0, 0);
+
+if (fechaSeleccionada < hoy) {
+    mostrarAlertaError("No puedes seleccionar una fecha anterior a hoy.");
+    return;
+}
+
 
     const solicitudes = await obtenerSolicitudes();
 

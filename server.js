@@ -20,8 +20,27 @@ const solicitudSchema = new mongoose.Schema({
     id: String,
     estado: String,
     claseA: Object,
-    claseB: Object
+    claseB: Object,
+    expiraEn: Date
 });
+
+function calcularFechaExpiracion(solicitud) {
+    const fechas = [];
+
+    if (solicitud.claseA?.fecha) {
+        fechas.push(new Date(solicitud.claseA.fecha));
+    }
+
+    if (solicitud.claseB?.fecha) {
+        fechas.push(new Date(solicitud.claseB.fecha));
+    }
+
+    const ultimaFecha = new Date(Math.max(...fechas));
+    ultimaFecha.setDate(ultimaFecha.getDate() + 2); // +2 días
+
+    return ultimaFecha;
+}
+
 
 const Solicitud = mongoose.model("Solicitud", solicitudSchema);
 
@@ -42,7 +61,11 @@ app.get("/api/solicitudes", async (req, res) => {
 // POST nueva solicitud
 app.post("/api/solicitudes", async (req, res) => {
     try {
-        const nueva = new Solicitud(req.body);
+        const nueva = new Solicitud({
+    ...req.body,
+    expiraEn: calcularFechaExpiracion(req.body)
+});
+
         await nueva.save();
         res.json(nueva);
     } catch (err) {
@@ -82,10 +105,15 @@ app.put("/api/solicitudes/:id", async (req, res) => {
                 error: "No se permite intercambio con la misma fecha"
             });
         }
+        if (solicitud.estado === "intercambiada") {
+    return res.status(400).json({ error: "Solicitud ya intercambiada" });
+}
+
 
         // ✅ TODO OK → aceptar intercambio
         solicitud.estado = "intercambiada";
         solicitud.claseB = claseB;
+        solicitud.expiraEn = calcularFechaExpiracion(solicitud);
 
         await solicitud.save();
         res.json(solicitud);
@@ -95,6 +123,15 @@ app.put("/api/solicitudes/:id", async (req, res) => {
         res.status(500).json({ error: "Error al actualizar solicitud" });
     }
 });
+
+async function limpiarSolicitudesExpiradas() {
+    const ahora = new Date();
+
+    await Solicitud.deleteMany({
+        expiraEn: { $lte: ahora }
+    });
+}
+
 
 
 // DELETE (opcional)
@@ -116,3 +153,10 @@ app.get("*", (req, res) => {
 app.listen(PORT, () => {
     console.log("Servidor corriendo en puerto", PORT);
 });
+
+setInterval(() => {
+    limpiarSolicitudesExpiradas()
+        .then(() => console.log("🧹 Solicitudes expiradas limpiadas"))
+        .catch(err => console.error("Error limpiando solicitudes:", err));
+}, 1000 * 60 * 60); // cada hora
+
