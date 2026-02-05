@@ -1,4 +1,4 @@
-/* RESET BÁSICO */
+/* ================= RESET ================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,105 +12,97 @@ body {
     min-height: 100vh;
 }
 
-/* CONTENEDOR PRINCIPAL */
+/* ================= APP ================= */
 .app {
     width: 100%;
-    max-width: 100%;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 .header {
     text-align: center;
 }
 
 .header h1 {
-    font-size: 4rem;
-    margin-bottom: 10px;
+    font-size: 2.5rem;
 }
 
 #usuario-actual {
-    font-size: 2.5rem;
+    font-size: 1.2rem;
     opacity: 0.7;
 }
 
 .btn-dev {
-    margin-top: 8px;
-    font-size: 1.5rem;
-    background: transparent;
+    margin-top: 6px;
+    background: none;
     border: none;
     color: #666;
+    font-size: 0.9rem;
 }
 
-/* LISTA DE SOLICITUDES */
+/* ================= LISTA (MOBILE) ================= */
 .lista-solicitudes {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding-bottom: 80px; /* espacio para botón */
-}
-.solicitud-card{
-    background: #ddd;
-    margin: 1rem 5rem;
-    padding: 1rem;
-    border-radius: 30px;
+    display: grid;
+    grid-template-columns: 1fr; /* 👈 1 columna */
+    gap: 16px;
+    padding-bottom: 96px;
 }
 
-.card-solicitud {
-    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
-    border-radius: 20px;
+/* ================= CARD ================= */
+.solicitud-card {
+    background: #ffffff;
+    border-radius: 16px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* HEADER */
+/* hover SOLO mueve, no cambia tamaños */
+.solicitud-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+/* ================= CARD CONTENT ================= */
 .card-header {
     display: flex;
     justify-content: space-between;
-    font-size: 2.8rem;
-    opacity: 0.85;
-    margin: 0 5rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
 }
 
-/* BODY */
 .card-body {
     text-align: center;
+    margin: 12px 0;
 }
 
 .card-body .asignatura {
-    font-size: 3.3rem;
-    margin: 6px 0 2px;
-}
-
-.card-body .solicitante {
-    font-size: 2.9rem;
-    opacity: 0.8;
-}
-
-/* ESTADO */
-.estado {
-    display: flex;
-    justify-content: center;
-    margin: 1rem;
-}
-
-.estado-badge {
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     font-weight: 600;
 }
 
-/* Estados */
+.card-body .solicitante {
+    font-size: 1rem;
+    opacity: 0.75;
+}
+
+/* ================= ESTADO ================= */
+.estado {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.estado-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 .estado-pendiente {
     background: #2ecc71;
     color: #0b3d1f;
@@ -126,248 +118,247 @@ body {
     color: #fff;
 }
 
-/* DIVIDER */
-.divider {
-    height: 1px;
-    background: rgba(255,255,255,0.15);
-    margin: 6px 0;
-}
-
-/* RESULTADO */
-.resultado {
-    text-align: center;
-    font-size: 0.85rem;
-    opacity: 0.9;
-}
-.resultado-intercambio{
+/* ================= RESULTADO ================= */
+.resultado-intercambio {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
     margin-top: 12px;
 }
-.resultado-item{
-    margin: 5px;
-    border-radius: 20px;
-    background-color: #2ecc71;
+
+.resultado-item {
     flex: 1;
-    border-radius: 12px;
-    padding: 10px;
+    background: #f1f3f5;
+    border-radius: 10px;
+    padding: 8px;
     text-align: center;
+    font-size: 0.9rem;
     position: relative;
-    font-size: 2rem;
 }
 
+/* tooltip grupo */
 .resultado-item::after {
     content: attr(data-grupo);
     position: absolute;
-    bottom: -55px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
     background: #111;
     color: #fff;
-    font-size: 0.75rem;
-    padding: 4px 8px;
+    font-size: 0.7rem;
+    padding: 4px 6px;
     border-radius: 6px;
-    white-space: nowrap;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
 }
 
-/* Mostrar en hover */
 .resultado-item:hover::after {
     opacity: 1;
-    font-size: 2rem;
-}
-/* BOTONES */
-button {
-    cursor: pointer;
 }
 
+/* ================= BOTÓN PRINCIPAL ================= */
 .btn-principal {
     position: fixed;
     bottom: 16px;
     left: 16px;
     right: 16px;
     padding: 16px;
-    font-size: 2.2rem;
+    font-size: 1.2rem;
     background: #2196f3;
     color: white;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
-/* ALERTAS */
+/* ================= ALERTAS ================= */
 .alerta {
-    padding: 14px;
-    border-radius: 12px;
-    font-size: 1.8rem;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 1rem;
 }
 
 .alerta-info {
     background: #e3f2fd;
-    color: #0d47a1;
-}
-
-.alerta-info-texto {
-    background: #fff8e1;
-    color: #8a6d3b;
 }
 
 .alerta-error {
     background: #fdecea;
-    color: #b71c1c;
+}
+
+.alerta-info-texto {
+    background: #fff8e1;
 }
 
 .oculto {
     display: none;
 }
 
-/* FORMULARIO DESLIZABLE */
+/* ===== FORMULARIO DESPLEGABLE ===== */
+
 .formulario-container {
-    position: sticky;
-    inset: 0;
-    background: white;
-    padding: 20px;
-    overflow-y: auto;
-    transform: translateY(100%);
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 100%);
+    width: 92%;
+    max-width: 520px;
+
+    background: #ffffff;
+    border: 2px solid #1b1b1b;
+    border-radius: 16px;
+
+    padding: 24px 24px 32px;
+    box-shadow: 8px 8px 0px #1b1b1b;
+
     transition: transform 0.35s ease;
-    z-index: 100;
+    z-index: 300;
+
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .formulario-container:not(.oculto) {
-    transform: translateY(0);
+    transform: translate(-50%, 0);
 }
 
-/* CERRAR FORM */
-.cerrar-formulario {
-    position: absolute;
-    top: 12px;
-    right: 25px;
-    font-size: 3.4rem;
-    background: none;
-    border: none;
-}
-
-/* FORMULARIO */
-.formulario {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 10px;
-}
 
 .formulario h2 {
-    font-size: 3.5rem;
-    text-align: center;
-}
-
-label {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 16px;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 2rem;
+    align-items: center;
+    gap: 8px;
 }
 
-input, select {
-    padding: 14px;
-    font-size: 1.1rem;
-    border-radius: 12px;
-    border: 1px solid #ccc;
+
+.formulario label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
 }
+
+
+.formulario input,
+.formulario select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px 16px;
+
+    font-size: 1rem;
+    border-radius: 14px;
+    border: 2px solid #1b1b1b;
+    background: #ffffff;
+
+    transition: background 0.2s ease, border 0.2s ease;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+    outline: none;
+    background: #f9e450;
+    border: 3px solid #1b1b1b;
+}
+
 
 .btn-submit {
-    padding: 16px;
-    font-size: 2.5rem;
-    border-radius: 14px;
-    background: #4caf50;
-    color: white;
-    border: none;
-}
+    margin-top: 24px;
+    align-self: flex-end;
 
-/* RESULTADO INTERCAMBIO */
-.resultado {
-    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    background: #f9e450;
+    border: 2px solid #1b1b1b;
+    border-radius: 16px;
+
+    padding: 14px 24px;
     font-size: 1rem;
-    line-height: 1.4;
+    font-weight: 800;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-/* ===== DESKTOP ===== */
-@media (min-width: 768px) {
-    .app {
-        margin: auto;
-    }
+.btn-submit:hover {
+    background: #ffbb38;
+    border-width: 4px;
+    box-shadow: 0 0 0 4px rgba(193,191,250,0.6);
+}
 
-    .btn-principal {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: 500px;
+.cerrar-formulario {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #ffffff;
+    border: 2px solid #1b1b1b;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.cerrar-formulario:hover {
+    background: #f9e450;
+    transform: scale(1.05);
+}
+
+
+/* ================= DESKTOP ================= */
+@media (min-width: 600px) {
+    .lista-solicitudes {
+        grid-template-columns: repeat(2, 1fr);
     }
-    .card-header{
-        font-size: 1.5rem;
-    }
-    .card-body .asignatura{
-        font-size: 2rem;
-    }
-    .card-body .solicitante{
-        font-size: 1.5rem;
-    }
-    .estado-badge .estado-mia{
-        font-size: 1.2rem;
-    }
-    .resultado-item{
-        font-size: 1.2rem;
+}
+
+@media (min-width: 600px) {
+    .lista-solicitudes {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 @media (min-width: 900px) {
-
     .lista-solicitudes {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(3, 1fr);
     }
 
-    .solicitud-card {
-        height: auto;
-        min-height: 160px;
-        cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    .app {
+        max-width: 1400px;
+        margin: auto;
+    }
+    @media (min-width: 900px) {
+    .formulario-container {
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, 120%);
+        max-height: 70vh;
     }
 
-    /* SOLO efecto visual */
-    .solicitud-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-    }
-
-    /* tamaños desktop FIJOS */
-    .card-header {
-        margin: 0 1rem;
-        font-size: 2.5rem;
-    }
-
-    .card-body {
-        font-size: 2.4rem;
-    }
-
-    .card-body .solicitante {
-        font-size: 2rem;
-    }
-
-    .estado {
-        font-size: 1.8rem;
-    }
-
-    .resultado-item {
-        font-size: 1.9rem;
+    .formulario-container:not(.oculto) {
+        transform: translate(-50%, -50%);
     }
 }
+}
+@media (min-width: 1200px) {
+    .lista-solicitudes {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ================= NO HOVER EN TOUCH ================= */
 @media (hover: none) {
     .solicitud-card:hover {
         transform: none;
-        box-shadow: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
 }
-
