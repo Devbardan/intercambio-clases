@@ -228,11 +228,15 @@ function mostrarPasoFormulario() {
     formularioContainer.scrollIntoView({ behavior: "smooth", block: "center" });
 
     const form = document.getElementById("formulario");
+    
+    // IMPORTANTE: Desactivar el submit normal y usar solo el botón Siguiente del tutorial
     form.onsubmit = (e) => {
         e.preventDefault();
+        e.stopImmediatePropagation(); // Detener otros listeners
         if (pasoTutorial === 2) {
             simularGuardadoTutorial();
         }
+        return false;
     };
 }
 
