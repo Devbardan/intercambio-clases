@@ -135,7 +135,6 @@
 
 /* Foco para botón principal */
 .tutorial-focus-btn {
-    position: relative;
     z-index: 1001 !important;
     animation: pulse-tutorial 1.5s infinite;
     box-shadow: 
