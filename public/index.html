@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intercambio de Clases</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tutorial.css">
 </head>
 <body>
 
@@ -81,6 +82,32 @@
 
 </section>
 
+<!-- ================= TUTORIAL OVERLAY ================= -->
+<div id="tutorial-overlay" class="tutorial-overlay oculto"></div>
+
+<!-- ================= TUTORIAL DIALOG ================= -->
+<div id="tutorial-dialog" class="tutorial-dialog oculto">
+    <h3>👋 Bienvenido</h3>
+
+    <p id="tutorial-text">
+        Lo primero que debes hacer es crear una solicitud de intercambio.
+        Aquí debes ingresar la <strong>clase a la que NO podrás asistir</strong>
+        (grupo y fecha).
+    </p>
+
+    <div class="tutorial-actions">
+        <button id="tutorial-skip" class="tutorial-btn secondary">
+            Cerrar tutorial
+        </button>
+
+        <button id="tutorial-next" class="tutorial-btn primary">
+            Siguiente
+        </button>
+    </div>
+</div>
+
 <script src="functions.js"></script>
+<script src="tutorial.js"></script>
+
 </body>
 </html>

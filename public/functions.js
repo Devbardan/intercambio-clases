@@ -49,7 +49,6 @@ btnFormulario.addEventListener("click", () => {
     solicitudPendienteId = null;
     formulario.reset();
     formularioContainer.classList.toggle("oculto");
-    document.getElementById("info-intercambio").classList.add("oculto");
     document.getElementById("alerta-error").classList.add("oculto");
 
     const inputAsignatura = document.getElementById("asignatura");
