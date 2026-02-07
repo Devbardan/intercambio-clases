@@ -235,6 +235,11 @@ formulario.addEventListener("submit", async e => {
     const grupo = Number(document.getElementById("grupo").value);
     const fecha = document.getElementById("fecha").value;
 
+    if (window.tutorialActivo) {
+        console.log("Tutorial activo: guardado bloqueado");
+        return;
+    }
+
     if (!grupo || !fecha) {
         mostrarAlertaError("Completa todos los campos");
         return;
