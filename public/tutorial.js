@@ -197,11 +197,6 @@ function avanzarAPasoFormulario() {
     const mm = String(fechaEjemplo.getMonth() + 1).padStart(2, "0");
     const dd = String(fechaEjemplo.getDate()).padStart(2, "0");
     document.getElementById("fecha").value = `${yyyy}-${mm}-${dd}`;
-    // BLOQUEAR el campo asignatura para que no se pueda modificar en el tutorial
-const inputAsignatura = document.getElementById("asignatura");
-inputAsignatura.disabled = true;
-inputAsignatura.style.background = "#e5e7eb"; // Visual de deshabilitado
-inputAsignatura.style.cursor = "not-allowed";
 
     formularioContainer.classList.remove("oculto");
     void formularioContainer.offsetHeight;
@@ -228,25 +223,21 @@ function mostrarPasoFormulario() {
     `;
 
     btnNext.textContent = "Siguiente";
-    btnNext.onclick = (e) => simularGuardadoTutorial(e);
+    btnNext.onclick = simularGuardadoTutorial;
 
     formularioContainer.scrollIntoView({ behavior: "smooth", block: "center" });
 
     const form = document.getElementById("formulario");
     
-    const nuevoForm = form.cloneNode(true);
-form.parentNode.replaceChild(nuevoForm, form);
-
-// Agregar nuestro listener al nuevo formulario limpio
-nuevoForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (pasoTutorial === 2) {
-        simularGuardadoTutorial();
-    }
-    return false;
-});
+    // IMPORTANTE: Desactivar el submit normal y usar solo el botón Siguiente del tutorial
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation(); // Detener otros listeners
+        if (pasoTutorial === 2) {
+            simularGuardadoTutorial();
+        }
+        return false;
+    };
 }
 
 function simularGuardadoTutorial() {
@@ -269,7 +260,6 @@ function simularGuardadoTutorial() {
     formularioContainer.classList.remove("tutorial-focus");
     
     document.getElementById("formulario").reset();
-    e && e.preventDefault && e.preventDefault();
     
     avanzarAPasoCard();
 }
