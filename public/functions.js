@@ -231,14 +231,15 @@ async function prepararFormulario(idSolicitud) {
 formulario.addEventListener("submit", async e => {
     e.preventDefault();
 
+    // BLOQUEO PARA TUTORIAL: No guardar si el tutorial está activo
+    if (window.tutorialActivo) {
+        console.log("🚫 Tutorial activo: formulario bloqueado");
+        return;
+    }
+
     const asignatura = document.getElementById("asignatura").value.trim();
     const grupo = Number(document.getElementById("grupo").value);
     const fecha = document.getElementById("fecha").value;
-
-    if (window.tutorialActivo) {
-        console.log("Tutorial activo: guardado bloqueado");
-        return;
-    }
 
     if (!grupo || !fecha) {
         mostrarAlertaError("Completa todos los campos");
@@ -246,16 +247,15 @@ formulario.addEventListener("submit", async e => {
     }
 
     const fechaSeleccionada = new Date(fecha);
-fechaSeleccionada.setHours(0, 0, 0, 0);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
 
-const hoy = new Date();
-hoy.setHours(0, 0, 0, 0);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
-if (fechaSeleccionada < hoy) {
-    mostrarAlertaError("No puedes seleccionar una fecha anterior a hoy.");
-    return;
-}
-
+    if (fechaSeleccionada < hoy) {
+        mostrarAlertaError("No puedes seleccionar una fecha anterior a hoy.");
+        return;
+    }
 
     const solicitudes = await obtenerSolicitudes();
 
@@ -281,36 +281,35 @@ if (fechaSeleccionada < hoy) {
 
     // ================= ACEPTAR INTERCAMBIO =================
     else {
-    const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
-    if (!solicitud) return;
+        const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
+        if (!solicitud) return;
 
-    const usada = document.getElementById("clases-propias")?.value;
-    if (usada) {
-        await fetch(`/api/solicitudes/${usada}`, { method: "DELETE" });
+        const usada = document.getElementById("clases-propias")?.value;
+        if (usada) {
+            await fetch(`/api/solicitudes/${usada}`, { method: "DELETE" });
+        }
+
+        const response = await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                claseB: {
+                    userId: usuario.id,
+                    nombre: usuario.nombre,
+                    grupo,
+                    fecha
+                }
+            })
+        });
+
+        const data = await response.json();
+
+        // 🚫 ERRORES DEL BACKEND → ALERTA EN FORMULARIO
+        if (!response.ok) {
+            mostrarAlertaError(`⚠️ ${data.error}`);
+            return;
+        }
     }
-
-    const response = await fetch(`/api/solicitudes/${solicitudPendienteId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            claseB: {
-                userId: usuario.id,
-                nombre: usuario.nombre,
-                grupo,
-                fecha
-            }
-        })
-    });
-
-    const data = await response.json();
-
-    // 🚫 ERRORES DEL BACKEND → ALERTA EN FORMULARIO
-    if (!response.ok) {
-        mostrarAlertaError(`⚠️ ${data.error}`);
-        return;
-    }
-}
-
 
     formulario.reset();
     formularioContainer.classList.add("oculto");

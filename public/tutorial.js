@@ -15,7 +15,7 @@ const btnSkip = document.getElementById("tutorial-skip");
 // Guardar y bloquear mostrarSolicitudes
 const mostrarSolicitudesOriginal = window.mostrarSolicitudes;
 window.mostrarSolicitudes = function() {
-    if (tutorialActivo) {
+    if (window.tutorialActivo) {
         console.log("Bloqueado durante tutorial");
         return Promise.resolve();
     }
@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function iniciarTutorial() {
     tutorialActivo = true;
+    window.tutorialActivo = true; // SINCRONIZAR CON FUNCTIONS.JS
     pasoTutorial = 1;
     
     // Proteger las cards del tutorial contra cualquier modificación externa
@@ -658,6 +659,7 @@ function mostrarPasoIntercambioCompletado() {
 /* ================= FINALIZAR ================= */
 function finalizarTutorial() {
     tutorialActivo = false;
+    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
@@ -706,6 +708,7 @@ function cerrarTutorial() {
     datosTutorial = null;
     datosCardAjena = null;
     tutorialActivo = false;
+    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
@@ -715,6 +718,7 @@ function cerrarTutorial() {
 
 btnSkip.addEventListener("click", () => {
     tutorialActivo = false;
+    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
