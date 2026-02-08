@@ -377,6 +377,13 @@ function abrirModalRegistro() {
     btnCancelarModal.style.display = "none";
     modalEditar.classList.remove("oculto");
     inputNuevoNombre.focus();
+    
+    // Desactivar cierre al hacer click fuera SOLO en modo registro
+    modalEditar.style.pointerEvents = "auto";
+    modalEditar.onclick = null; // Eliminar listener anterior
+    
+    // Bloquear interacción con el resto de la app
+    document.body.style.overflow = "hidden";
 }
 
 // Evento del botón de editar (solo si ya tiene nombre)
@@ -400,9 +407,20 @@ if (btnGuardarModal) {
 
 // Cerrar modal
 function cerrarModalEditar() {
+    // Solo permitir cerrar si NO es registro inicial
+    if (esRegistroInicial) {
+        console.log("No se puede cerrar: registro obligatorio");
+        // Mostrar alerta visual
+        inputNuevoNombre.style.borderColor = "#e74c3c";
+        setTimeout(() => {
+            inputNuevoNombre.style.borderColor = "#1b1b1b";
+        }, 1000);
+        inputNuevoNombre.focus();
+        return;
+    }
     modalEditar.classList.add("oculto");
+    document.body.style.overflow = ""; // Restaurar scroll
 }
-
 // Cerrar al hacer click fuera
 if (modalEditar) {
     modalEditar.addEventListener("click", (e) => {
@@ -448,6 +466,9 @@ async function guardarNuevoNombre() {
         }
         
         await mostrarSolicitudes();
+
+        document.body.style.overflow = "";
+        esRegistroInicial = false;
         
         cerrarModalEditar();
         
