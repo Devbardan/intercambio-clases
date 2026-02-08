@@ -673,6 +673,7 @@ function finalizarTutorial() {
     ];
     
     cardsTutorial.forEach((card, index) => {
+
         if (card) {
             setTimeout(() => {
                 card.style.transition = "all 0.5s ease";
@@ -684,6 +685,11 @@ function finalizarTutorial() {
             }, index * 100);
         }
     });
+
+    // Verificar si el usuario necesita completar registro
+if (window.verificarRegistroPendiente) {
+    window.verificarRegistroPendiente();
+}
     
     setTimeout(() => {
         cerrarTutorial();
@@ -714,6 +720,10 @@ function cerrarTutorial() {
         clearInterval(proteccionCardsInterval);
         proteccionCardsInterval = null;
     }
+    // Verificar registro pendiente si se saltó el tutorial
+if (window.verificarRegistroPendiente) {
+    window.verificarRegistroPendiente();
+}
 }
 
 btnSkip.addEventListener("click", () => {
@@ -731,5 +741,11 @@ btnSkip.addEventListener("click", () => {
     });
     
     cerrarTutorial();
+    // Verificar si necesita registro aunque se saltó el tutorial
+if (window.verificarRegistroPendiente) {
+    window.verificarRegistroPendiente();
+    // No recargar inmediatamente si va a mostrar el modal
+    return;
+}
     location.reload();
 });
