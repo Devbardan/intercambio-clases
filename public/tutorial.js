@@ -29,12 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function iniciarTutorial() {
     tutorialActivo = true;
-    window.tutorialActivo = true; // SINCRONIZAR CON FUNCTIONS.JS
+    window.tutorialActivo = true;
     pasoTutorial = 1;
     
-    // Proteger las cards del tutorial contra cualquier modificación externa
     iniciarProteccionCards();
-    
     mostrarPasoBoton();
 }
 
@@ -48,7 +46,6 @@ function iniciarProteccionCards() {
             return;
         }
         
-        // Verificar y re-crear card del paso 3 si falta y estamos en paso 3 o más
         if (pasoTutorial >= 3 && datosTutorial) {
             const cardMia = document.getElementById("card-tutorial");
             if (!cardMia) {
@@ -57,7 +54,6 @@ function iniciarProteccionCards() {
             }
         }
         
-        // Verificar y re-crear card ajena del paso 4 si falta y estamos en paso 4 o más
         if (pasoTutorial >= 4 && datosCardAjena) {
             const cardAjena = document.getElementById("card-ajena-tutorial") || 
                              document.getElementById("card-intercambiada-tutorial");
@@ -66,7 +62,7 @@ function iniciarProteccionCards() {
                 recrearCardAjena();
             }
         }
-    }, 500); // Verificar cada 500ms
+    }, 500);
 }
 
 function recrearCardTutorial() {
@@ -76,7 +72,6 @@ function recrearCardTutorial() {
     const card = document.createElement("div");
     card.id = "card-tutorial";
     
-    // Mantener el estado visual según el paso actual
     if (pasoTutorial === 3) {
         card.className = "solicitud-card tutorial-card-destacada tutorial-focus-card";
     } else {
@@ -230,10 +225,9 @@ function mostrarPasoFormulario() {
 
     const form = document.getElementById("formulario");
     
-    // IMPORTANTE: Desactivar el submit normal y usar solo el botón Siguiente del tutorial
     form.onsubmit = (e) => {
         e.preventDefault();
-        e.stopImmediatePropagation(); // Detener otros listeners
+        e.stopImmediatePropagation();
         if (pasoTutorial === 2) {
             simularGuardadoTutorial();
         }
@@ -278,7 +272,6 @@ function avanzarAPasoCard() {
 function crearCardTutorial() {
     const lista = document.getElementById("lista-solicitudes");
     
-    // Eliminar si existe para evitar duplicados
     let cardExistente = document.getElementById("card-tutorial");
     if (cardExistente) cardExistente.remove();
     
@@ -336,7 +329,6 @@ function mostrarPasoCard() {
     btnNext.onclick = avanzarAPasoIntercambio;
 
     if (card) {
-        // Asegurar que tenga las clases correctas
         card.classList.add("tutorial-card-destacada");
         card.classList.add("tutorial-focus-card");
         card.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -347,7 +339,6 @@ function mostrarPasoCard() {
 function avanzarAPasoIntercambio() {
     pasoTutorial = 4;
     
-    // Quitar focus de la card anterior pero mantenerla visible
     const cardAnterior = document.getElementById("card-tutorial");
     if (cardAnterior) {
         cardAnterior.classList.remove("tutorial-focus-card");
@@ -659,7 +650,7 @@ function mostrarPasoIntercambioCompletado() {
 /* ================= FINALIZAR ================= */
 function finalizarTutorial() {
     tutorialActivo = false;
-    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
+    window.tutorialActivo = false;
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
@@ -673,7 +664,6 @@ function finalizarTutorial() {
     ];
     
     cardsTutorial.forEach((card, index) => {
-
         if (card) {
             setTimeout(() => {
                 card.style.transition = "all 0.5s ease";
@@ -686,16 +676,28 @@ function finalizarTutorial() {
         }
     });
 
-    // Verificar si el usuario necesita completar registro
-if (window.verificarRegistroPendiente) {
-    window.verificarRegistroPendiente();
-}
+    // Cerrar tutorial visualmente primero
+    overlay.classList.add("oculto");
+    dialog.classList.add("oculto");
     
+    // Limpiar estados
+    localStorage.setItem("tutorial_visto", "true");
+    pasoTutorial = 0;
+    datosTutorial = null;
+    datosCardAjena = null;
+    
+    // Verificar si necesita registro - NO recargar la página
+    if (window.verificarRegistroPendiente) {
+        window.verificarRegistroPendiente();
+    }
+    
+    // Recargar solo si NO hay registro pendiente (después de un tiempo)
     setTimeout(() => {
-        cerrarTutorial();
-        // Recargar la página o llamar a mostrarSolicitudes real
-        location.reload();
-    }, 800);
+        const usuarioData = JSON.parse(localStorage.getItem("usuario"));
+        if (usuarioData && usuarioData.nombre) {
+            location.reload();
+        }
+    }, 1000);
 }
 
 function cerrarTutorial() {
@@ -714,21 +716,17 @@ function cerrarTutorial() {
     datosTutorial = null;
     datosCardAjena = null;
     tutorialActivo = false;
-    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
+    window.tutorialActivo = false;
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
         proteccionCardsInterval = null;
     }
-    // Verificar registro pendiente si se saltó el tutorial
-if (window.verificarRegistroPendiente) {
-    window.verificarRegistroPendiente();
-}
 }
 
 btnSkip.addEventListener("click", () => {
     tutorialActivo = false;
-    window.tutorialActivo = false; // SINCRONIZAR CON FUNCTIONS.JS
+    window.tutorialActivo = false;
     
     if (proteccionCardsInterval) {
         clearInterval(proteccionCardsInterval);
@@ -741,11 +739,9 @@ btnSkip.addEventListener("click", () => {
     });
     
     cerrarTutorial();
-    // Verificar si necesita registro aunque se saltó el tutorial
-if (window.verificarRegistroPendiente) {
-    window.verificarRegistroPendiente();
-    // No recargar inmediatamente si va a mostrar el modal
-    return;
-}
-    location.reload();
+    
+    // Verificar registro pendiente al saltar
+    if (window.verificarRegistroPendiente) {
+        window.verificarRegistroPendiente();
+    }
 });

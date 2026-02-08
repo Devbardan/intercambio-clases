@@ -39,8 +39,8 @@ let usuario = JSON.parse(localStorage.getItem("usuario"));
 if (!usuario) {
     usuario = { 
         id: generarId(), 
-        nombre: null, // Sin nombre aún
-        pendiente: true // Marca que necesita completar registro
+        nombre: null,
+        pendiente: true
     };
     localStorage.setItem("usuario", JSON.stringify(usuario));
 }
@@ -48,10 +48,12 @@ if (!usuario) {
 // Mostrar nombre si existe, si no mostrar placeholder
 function actualizarDisplayUsuario() {
     const display = document.getElementById("usuario-actual");
-    if (usuario && usuario.nombre) {
-        display.textContent = `Usuario: ${usuario.nombre}`;
-    } else {
-        display.textContent = `Usuario: (sin nombre)`;
+    if (display) {
+        if (usuario && usuario.nombre) {
+            display.textContent = `Usuario: ${usuario.nombre}`;
+        } else {
+            display.textContent = `Usuario: (sin nombre)`;
+        }
     }
 }
 
@@ -108,7 +110,6 @@ async function mostrarSolicitudes() {
         const card = document.createElement("div");
         card.classList.add("solicitud-card");
 
-        // ================= ESTADO =================
         let estadoClase = "estado-pendiente";
         let estadoTexto = "Pendiente";
 
@@ -121,75 +122,59 @@ async function mostrarSolicitudes() {
                     : "estado-intercambiada";
         }
 
-        // ================= CARD CLICKEABLE =================
         if (
             solicitud.estado === "abierta" &&
             solicitud.claseA.userId !== usuario.id
         ) {
             card.classList.add("clickeable");
             card.addEventListener("click", () => {
-
-    // 1️⃣ llevar la card arriba
-    card.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
-    // 2️⃣ abrir formulario
-    prepararFormulario(solicitud.id);
-});
-
+                card.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+                prepararFormulario(solicitud.id);
+            });
         }
 
-        // ================= RESULTADO (SIEMPRE DEFINIDO) =================
         let resultadoHTML = "";
 
         if (solicitud.estado === "intercambiada" && solicitud.claseB) {
             resultadoHTML = `
                 <div class="resultado-intercambio">
-
                     <div class="resultado-item"
                          data-grupo="Grupo ${solicitud.claseB.grupo}">
                         <strong>${solicitud.claseA.nombre}</strong><br>
                         <span class="fecha">${solicitud.claseB.fecha}</span>
                     </div>
-
                     <div class="resultado-item"
                          data-grupo="Grupo ${solicitud.claseA.grupo}">
                         <strong>${solicitud.claseB.nombre}</strong><br>
                         <span class="fecha">${solicitud.claseA.fecha}</span>
                     </div>
-
                 </div>
             `;
         }
 
-        // ================= HTML FINAL =================
         card.innerHTML = `
             <div class="card-header">
                 <span class="fecha">${solicitud.claseA.fecha}</span>
                 <span class="grupo">Grupo ${solicitud.claseA.grupo}</span>
             </div>
-
             <div class="card-body">
                 <h3 class="asignatura">${solicitud.claseA.asignatura}</h3>
                 <p class="solicitante">${solicitud.claseA.nombre}</p>
             </div>
-
             <div class="estado">
                 <span class="estado-badge ${estadoClase}">
                     ${estadoTexto}
                 </span>
             </div>
-
             ${resultadoHTML}
         `;
 
         lista.appendChild(card);
     });
 }
-
-
 
 // ================= PREPARAR FORMULARIO =================
 async function prepararFormulario(idSolicitud) {
@@ -245,7 +230,6 @@ async function prepararFormulario(idSolicitud) {
 formulario.addEventListener("submit", async e => {
     e.preventDefault();
 
-    // BLOQUEO PARA TUTORIAL: No guardar si el tutorial está activo
     if (window.tutorialActivo) {
         console.log("🚫 Tutorial activo: formulario bloqueado");
         return;
@@ -273,7 +257,6 @@ formulario.addEventListener("submit", async e => {
 
     const solicitudes = await obtenerSolicitudes();
 
-    // ================= NUEVA SOLICITUD =================
     if (!solicitudPendienteId) {
         await fetch("/api/solicitudes", {
             method: "POST",
@@ -291,10 +274,7 @@ formulario.addEventListener("submit", async e => {
                 claseB: null
             })
         });
-    }
-
-    // ================= ACEPTAR INTERCAMBIO =================
-    else {
+    } else {
         const solicitud = solicitudes.find(s => s.id === solicitudPendienteId);
         if (!solicitud) return;
 
@@ -318,7 +298,6 @@ formulario.addEventListener("submit", async e => {
 
         const data = await response.json();
 
-        // 🚫 ERRORES DEL BACKEND → ALERTA EN FORMULARIO
         if (!response.ok) {
             mostrarAlertaError(`⚠️ ${data.error}`);
             return;
@@ -337,8 +316,6 @@ function mostrarAlertaError(texto) {
 
     div.textContent = texto;
     div.classList.remove("oculto");
-
-    // scroll automático al formulario
     div.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -352,10 +329,6 @@ function limpiarAlertaError() {
 
 // ================= EDITAR NOMBRE DE USUARIO =================
 
-// ================= EDITAR NOMBRE DE USUARIO =================
-
-const btnEditarNombre = document.getElementById("btn-editar-nombre");
-
 // Crear modal de edición (usado tanto para registro como para cambio)
 const modalHTML = `
     <div id="modal-editar" class="modal-editar-nombre oculto">
@@ -364,8 +337,8 @@ const modalHTML = `
             <p id="modal-descripcion" style="font-size: 0.9rem; color: #666; margin-bottom: 12px;"></p>
             <input type="text" id="input-nuevo-nombre" placeholder="Ingresa tu nombre completo" maxlength="50">
             <div class="modal-botones" id="modal-botones-container">
-                <button class="btn-cancelar" id="btn-cancelar-modal" onclick="cerrarModalEditar()">Cancelar</button>
-                <button class="btn-guardar" onclick="guardarNuevoNombre()">Guardar</button>
+                <button class="btn-cancelar" id="btn-cancelar-modal">Cancelar</button>
+                <button class="btn-guardar" id="btn-guardar-modal">Guardar</button>
             </div>
         </div>
     </div>
@@ -377,6 +350,7 @@ const inputNuevoNombre = document.getElementById("input-nuevo-nombre");
 const modalTitulo = document.getElementById("modal-titulo");
 const modalDescripcion = document.getElementById("modal-descripcion");
 const btnCancelarModal = document.getElementById("btn-cancelar-modal");
+const btnGuardarModal = document.getElementById("btn-guardar-modal");
 
 // Variable para saber si es registro inicial o cambio de nombre
 let esRegistroInicial = false;
@@ -400,17 +374,29 @@ function abrirModalRegistro() {
     modalDescripcion.textContent = "Para comenzar a usar la aplicación, ingresa tu nombre completo:";
     inputNuevoNombre.value = "";
     inputNuevoNombre.placeholder = "Ingresa tu nombre completo";
-    btnCancelarModal.style.display = "none"; // No permitir cancelar en registro
+    btnCancelarModal.style.display = "none";
     modalEditar.classList.remove("oculto");
     inputNuevoNombre.focus();
 }
 
 // Evento del botón de editar (solo si ya tiene nombre)
-btnEditarNombre.addEventListener("click", () => {
-    if (usuario && usuario.nombre) {
-        abrirModalEdicion();
-    }
-});
+const btnEditarNombre = document.getElementById("btn-editar-nombre");
+if (btnEditarNombre) {
+    btnEditarNombre.addEventListener("click", () => {
+        if (usuario && usuario.nombre) {
+            abrirModalEdicion();
+        }
+    });
+}
+
+// Eventos de los botones del modal
+if (btnCancelarModal) {
+    btnCancelarModal.addEventListener("click", cerrarModalEditar);
+}
+
+if (btnGuardarModal) {
+    btnGuardarModal.addEventListener("click", guardarNuevoNombre);
+}
 
 // Cerrar modal
 function cerrarModalEditar() {
@@ -418,9 +404,11 @@ function cerrarModalEditar() {
 }
 
 // Cerrar al hacer click fuera
-modalEditar.addEventListener("click", (e) => {
-    if (e.target === modalEditar) cerrarModalEditar();
-});
+if (modalEditar) {
+    modalEditar.addEventListener("click", (e) => {
+        if (e.target === modalEditar) cerrarModalEditar();
+    });
+}
 
 // Guardar nuevo nombre (tanto para registro inicial como para cambio)
 async function guardarNuevoNombre() {
@@ -435,13 +423,11 @@ async function guardarNuevoNombre() {
         return;
     }
     
-    // Validar longitud mínima
     if (nuevoNombre.length < 2) {
         alert("El nombre debe tener al menos 2 caracteres");
         return;
     }
     
-    // Si es cambio de nombre y es igual al actual, solo cerrar
     if (!esRegistroInicial && nuevoNombre === usuario.nombre) {
         cerrarModalEditar();
         return;
@@ -450,21 +436,17 @@ async function guardarNuevoNombre() {
     const nombreAnterior = usuario.nombre;
     
     try {
-        // 1. Actualizar en localStorage (siempre funciona)
         usuario.nombre = nuevoNombre;
-        usuario.pendiente = false; // Ya no está pendiente
+        usuario.pendiente = false;
         localStorage.setItem("usuario", JSON.stringify(usuario));
         
-        // 2. Actualizar en la UI
         actualizarDisplayUsuario();
         
-        // 3. Intentar actualizar en el backend (API) - puede fallar en local
         let resultado = { local: true };
-        if (nombreAnterior) { // Solo si había nombre anterior (cambio, no registro)
+        if (nombreAnterior) {
             resultado = await actualizarNombreEnBackend(nombreAnterior, nuevoNombre);
         }
         
-        // 4. Recargar solicitudes para reflejar el cambio
         await mostrarSolicitudes();
         
         cerrarModalEditar();
@@ -497,38 +479,37 @@ async function actualizarNombreEnBackend(nombreAnterior, nuevoNombre) {
         });
         
         if (!response.ok) {
-            throw new Error("Error en la respuesta del servidor");
+            console.warn("⚠️ Servidor no disponible, modo local activado");
+            return { ok: true, local: true };
         }
         
         return await response.json();
     } catch (error) {
-        console.error("Error en API:", error);
-        throw error;
+        console.warn("⚠️ Sin conexión al servidor, cambio solo en local:", error.message);
+        return { ok: true, local: true };
     }
 }
 
 // Permitir Enter para guardar
-inputNuevoNombre.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") guardarNuevoNombre();
-});
+if (inputNuevoNombre) {
+    inputNuevoNombre.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") guardarNuevoNombre();
+    });
+}
 
 // ================= VERIFICAR REGISTRO DESPUÉS DEL TUTORIAL =================
 
-// Función para verificar si el usuario necesita completar registro
 function verificarRegistroPendiente() {
-    // Solo verificar si el tutorial ya fue visto
     const tutorialVisto = localStorage.getItem("tutorial_visto");
     const usuarioData = JSON.parse(localStorage.getItem("usuario"));
     
     if (tutorialVisto && usuarioData && (usuarioData.pendiente || !usuarioData.nombre)) {
-        // El tutorial terminó pero el usuario no tiene nombre
         setTimeout(() => {
             abrirModalRegistro();
-        }, 500); // Pequeña espera para que termine la transición del tutorial
+        }, 500);
     }
 }
 
-// Exponer función global para que tutorial.js la llame
 window.verificarRegistroPendiente = verificarRegistroPendiente;
 
 // ================= INICIO =================
