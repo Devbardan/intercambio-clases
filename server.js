@@ -132,6 +132,36 @@ async function limpiarSolicitudesExpiradas() {
     });
 }
 
+// POST actualizar nombre de usuario en todas sus solicitudes
+app.post("/api/actualizar-nombre", async (req, res) => {
+    try {
+        const { userId, nombreAnterior, nuevoNombre } = req.body;
+        
+        if (!userId || !nuevoNombre) {
+            return res.status(400).json({ error: "Datos incompletos" });
+        }
+        
+        // Actualizar en claseA (solicitudes creadas por el usuario)
+        await Solicitud.updateMany(
+            { "claseA.userId": userId },
+            { $set: { "claseA.nombre": nuevoNombre } }
+        );
+        
+        // Actualizar en claseB (solicitudes donde aceptó intercambio)
+        await Solicitud.updateMany(
+            { "claseB.userId": userId },
+            { $set: { "claseB.nombre": nuevoNombre } }
+        );
+        
+        console.log(`✅ Nombre actualizado: ${nombreAnterior} → ${nuevoNombre}`);
+        res.json({ ok: true, mensaje: "Nombre actualizado correctamente" });
+        
+    } catch (err) {
+        console.error("❌ Error al actualizar nombre:", err);
+        res.status(500).json({ error: "Error al actualizar nombre" });
+    }
+});
+
 
 
 // DELETE (opcional)

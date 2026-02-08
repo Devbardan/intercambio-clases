@@ -336,5 +336,116 @@ function limpiarAlertaError() {
     div.classList.add("oculto");
 }
 
+// ================= EDITAR NOMBRE DE USUARIO =================
+
+const btnEditarNombre = document.getElementById("btn-editar-nombre");
+
+// Crear modal de edición
+const modalHTML = `
+    <div id="modal-editar" class="modal-editar-nombre oculto">
+        <div class="modal-contenido">
+            <h3>Cambiar nombre</h3>
+            <input type="text" id="input-nuevo-nombre" placeholder="Nuevo nombre" maxlength="50">
+            <div class="modal-botones">
+                <button class="btn-cancelar" onclick="cerrarModalEditar()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarNuevoNombre()">Guardar</button>
+            </div>
+        </div>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+const modalEditar = document.getElementById("modal-editar");
+const inputNuevoNombre = document.getElementById("input-nuevo-nombre");
+
+// Abrir modal
+btnEditarNombre.addEventListener("click", () => {
+    inputNuevoNombre.value = usuario.nombre;
+    modalEditar.classList.remove("oculto");
+    inputNuevoNombre.focus();
+});
+
+// Cerrar modal
+function cerrarModalEditar() {
+    modalEditar.classList.add("oculto");
+}
+
+// Cerrar al hacer click fuera
+modalEditar.addEventListener("click", (e) => {
+    if (e.target === modalEditar) cerrarModalEditar();
+});
+
+// Guardar nuevo nombre
+async function guardarNuevoNombre() {
+    const nuevoNombre = inputNuevoNombre.value.trim();
+    
+    if (!nuevoNombre) {
+        alert("Por favor ingresa un nombre");
+        return;
+    }
+    
+    if (nuevoNombre === usuario.nombre) {
+        cerrarModalEditar();
+        return;
+    }
+    
+    const nombreAnterior = usuario.nombre;
+    
+    try {
+        // 1. Actualizar en localStorage
+        usuario.nombre = nuevoNombre;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        
+        // 2. Actualizar en la UI
+        document.getElementById("usuario-actual").textContent = `Usuario: ${usuario.nombre}`;
+        
+        // 3. Actualizar en el backend (API)
+        await actualizarNombreEnBackend(nombreAnterior, nuevoNombre);
+        
+        // 4. Recargar solicitudes para reflejar el cambio
+        await mostrarSolicitudes();
+        
+        cerrarModalEditar();
+        console.log("✅ Nombre actualizado correctamente");
+        
+    } catch (error) {
+        console.error("❌ Error al actualizar nombre:", error);
+        // Revertir cambios si falla
+        usuario.nombre = nombreAnterior;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        document.getElementById("usuario-actual").textContent = `Usuario: ${usuario.nombre}`;
+        alert("Error al actualizar el nombre. Intenta de nuevo.");
+    }
+}
+
+// Llamar a la API para actualizar nombre en todas las solicitudes
+async function actualizarNombreEnBackend(nombreAnterior, nuevoNombre) {
+    try {
+        const response = await fetch("/api/actualizar-nombre", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: usuario.id,
+                nombreAnterior: nombreAnterior,
+                nuevoNombre: nuevoNombre
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error("Error en la respuesta del servidor");
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error("Error en API:", error);
+        throw error;
+    }
+}
+
+// Permitir Enter para guardar
+inputNuevoNombre.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") guardarNuevoNombre();
+});
+
 // ================= INICIO =================
 mostrarSolicitudes();
