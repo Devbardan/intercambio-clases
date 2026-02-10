@@ -253,6 +253,7 @@ body {
     border-radius: 16px;
     padding: 14px 24px;
     font-weight: 700;
+    cursor: pointer;
 }
 
 /* ================= ALERTAS ================= */
@@ -419,7 +420,7 @@ body {
     }
     @media (min-width: 900px) {
     .formulario-container {
-        top: 50%;
+        top: 35%;
         bottom: auto;
         transform: translate(-50%, 120%);
         max-height: 70vh;
