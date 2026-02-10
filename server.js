@@ -220,8 +220,6 @@ setInterval(() => {
         .catch(err => console.error("Error en limpieza programada:", err));
 }, 1000 * 60 * 60); // cada hora
 
-// Agrega esto al final de server.js, antes de app.listen()
-
 // 🛠️ REPARACIÓN: Limpiar solicitudes con expiraEn inválido o ya expiradas
 async function repararSolicitudesExistentes() {
     try {
@@ -255,12 +253,18 @@ async function repararSolicitudesExistentes() {
     }
 }
 
-// Ejecutar al iniciar
-repararSolicitudesExistentes().then(() => {
+// 🚀 INICIAR SERVIDOR (SOLO UNA VEZ)
+async function iniciarServidor() {
+    // Primero reparar solicitudes existentes
+    await repararSolicitudesExistentes();
+    
+    // Luego iniciar el servidor
     app.listen(PORT, () => {
         console.log("Servidor corriendo en puerto", PORT);
     });
-});
+    
+    // Limpieza inicial al arrancar
+    await limpiarSolicitudesExpiradas();
+}
 
-// Ejecutar limpieza al iniciar servidor
-limpiarSolicitudesExpiradas().catch(console.error);
+iniciarServidor();
