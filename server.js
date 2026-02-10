@@ -24,49 +24,68 @@ const solicitudSchema = new mongoose.Schema({
     expiraEn: Date
 });
 
+// ✅ FUNCIÓN CORREGIDA: Calcula fecha de expiración correctamente
 function calcularFechaExpiracion(solicitud) {
     const fechas = [];
-
+    
+    // Validar que claseA existe y tiene fecha válida
     if (solicitud.claseA?.fecha) {
-        fechas.push(new Date(solicitud.claseA.fecha));
+        const fechaA = new Date(solicitud.claseA.fecha);
+        if (!isNaN(fechaA.getTime())) {
+            fechas.push(fechaA);
+        }
     }
 
+    // Solo agregar claseB si existe y tiene fecha válida (para solicitudes intercambiadas)
     if (solicitud.claseB?.fecha) {
-        fechas.push(new Date(solicitud.claseB.fecha));
+        const fechaB = new Date(solicitud.claseB.fecha);
+        if (!isNaN(fechaB.getTime())) {
+            fechas.push(fechaB);
+        }
     }
 
-    const ultimaFecha = new Date(Math.max(...fechas));
-    ultimaFecha.setDate(ultimaFecha.getDate() + 2); // +2 días
+    // Si no hay fechas válidas, usar fecha actual + 1 día como fallback
+    if (fechas.length === 0) {
+        const fallback = new Date();
+        fallback.setDate(fallback.getDate() + 1);
+        return fallback;
+    }
 
+    // Tomar la fecha más reciente y sumar 1 día (o 2 si prefieres)
+    const ultimaFecha = new Date(Math.max(...fechas));
+    ultimaFecha.setDate(ultimaFecha.getDate() + 1); // +1 día después de la última fecha
+    
     return ultimaFecha;
 }
-
 
 const Solicitud = mongoose.model("Solicitud", solicitudSchema);
 
 // GET todas las solicitudes (ROBUSTO)
 app.get("/api/solicitudes", async (req, res) => {
     try {
+        // Limpiar expiradas antes de devolver (opcional, para datos frescos)
+        await limpiarSolicitudesExpiradas();
+        
         const solicitudes = await Solicitud.find({}).lean();
-
-        // 🔐 Asegurar siempre un array válido
         res.json(Array.isArray(solicitudes) ? solicitudes : []);
     } catch (err) {
         console.error("❌ Error GET /api/solicitudes:", err);
-        res.json([]); // 👈 NUNCA romper el frontend
+        res.json([]);
     }
 });
-
 
 // POST nueva solicitud
 app.post("/api/solicitudes", async (req, res) => {
     try {
+        const expiraEn = calcularFechaExpiracion(req.body);
+        
         const nueva = new Solicitud({
-    ...req.body,
-    expiraEn: calcularFechaExpiracion(req.body)
-});
+            ...req.body,
+            expiraEn: expiraEn
+        });
 
         await nueva.save();
+        console.log(`✅ Solicitud creada: ${req.body.id}, expira: ${expiraEn}`);
         res.json(nueva);
     } catch (err) {
         console.error(err);
@@ -105,17 +124,16 @@ app.put("/api/solicitudes/:id", async (req, res) => {
                 error: "No se permite intercambio con la misma fecha"
             });
         }
-        if (solicitud.estado === "intercambiada") {
-    return res.status(400).json({ error: "Solicitud ya intercambiada" });
-}
 
-
-        // ✅ TODO OK → aceptar intercambio
+        // ✅ TODO OK → aceptar intercambio y recalcular expiración
         solicitud.estado = "intercambiada";
         solicitud.claseB = claseB;
+        
+        // Recalcular fecha de expiración con la nueva claseB
         solicitud.expiraEn = calcularFechaExpiracion(solicitud);
 
         await solicitud.save();
+        console.log(`🔄 Intercambio completado: ${req.params.id}, nueva expiración: ${solicitud.expiraEn}`);
         res.json(solicitud);
 
     } catch (err) {
@@ -124,12 +142,25 @@ app.put("/api/solicitudes/:id", async (req, res) => {
     }
 });
 
+// ✅ FUNCIÓN CORREGIDA: Limpieza de solicitudes expiradas
 async function limpiarSolicitudesExpiradas() {
-    const ahora = new Date();
-
-    await Solicitud.deleteMany({
-        expiraEn: { $lte: ahora }
-    });
+    try {
+        const ahora = new Date();
+        
+        // Buscar solicitudes donde expiraEn <= ahora
+        const resultado = await Solicitud.deleteMany({
+            expiraEn: { $lte: ahora }
+        });
+        
+        if (resultado.deletedCount > 0) {
+            console.log(`🗑️ ${resultado.deletedCount} solicitud(es) expirada(s) eliminada(s)`);
+        }
+        
+        return resultado;
+    } catch (error) {
+        console.error("❌ Error limpiando solicitudes:", error);
+        throw error;
+    }
 }
 
 // POST actualizar nombre de usuario en todas sus solicitudes
@@ -162,8 +193,6 @@ app.post("/api/actualizar-nombre", async (req, res) => {
     }
 });
 
-
-
 // DELETE (opcional)
 app.delete("/api/solicitudes/:id", async (req, res) => {
     try {
@@ -184,9 +213,54 @@ app.listen(PORT, () => {
     console.log("Servidor corriendo en puerto", PORT);
 });
 
+// 🕐 Ejecutar limpieza cada hora
 setInterval(() => {
     limpiarSolicitudesExpiradas()
-        .then(() => console.log("🧹 Solicitudes expiradas limpiadas"))
-        .catch(err => console.error("Error limpiando solicitudes:", err));
+        .then(() => console.log("🧹 Limpieza programada completada"))
+        .catch(err => console.error("Error en limpieza programada:", err));
 }, 1000 * 60 * 60); // cada hora
 
+// Agrega esto al final de server.js, antes de app.listen()
+
+// 🛠️ REPARACIÓN: Limpiar solicitudes con expiraEn inválido o ya expiradas
+async function repararSolicitudesExistentes() {
+    try {
+        const ahora = new Date();
+        const solicitudes = await Solicitud.find({});
+        
+        console.log(`🔧 Reparando ${solicitudes.length} solicitudes existentes...`);
+        
+        for (const sol of solicitudes) {
+            // Verificar si expiraEn es inválido o ya pasó
+            const expiraInvalido = !sol.expiraEn || isNaN(new Date(sol.expiraEn).getTime());
+            const yaExpirada = sol.expiraEn && new Date(sol.expiraEn) <= ahora;
+            
+            if (expiraInvalido || yaExpirada) {
+                const nuevaExpiracion = calcularFechaExpiracion(sol);
+                
+                if (nuevaExpiracion <= ahora) {
+                    // Si incluso con el cálculo nuevo ya expiró, eliminar
+                    await Solicitud.deleteOne({ _id: sol._id });
+                    console.log(`🗑️ Eliminada solicitud expirada: ${sol.id}`);
+                } else {
+                    // Recalcular fecha
+                    sol.expiraEn = nuevaExpiracion;
+                    await sol.save();
+                    console.log(`✅ Fecha corregida: ${sol.id} → ${nuevaExpiracion.toISOString().split('T')[0]}`);
+                }
+            }
+        }
+    } catch (err) {
+        console.error("❌ Error reparando solicitudes:", err);
+    }
+}
+
+// Ejecutar al iniciar
+repararSolicitudesExistentes().then(() => {
+    app.listen(PORT, () => {
+        console.log("Servidor corriendo en puerto", PORT);
+    });
+});
+
+// Ejecutar limpieza al iniciar servidor
+limpiarSolicitudesExpiradas().catch(console.error);

@@ -535,3 +535,6 @@ window.verificarRegistroPendiente = verificarRegistroPendiente;
 
 // ================= INICIO =================
 mostrarSolicitudes();
+
+
+// Falta el error del modal si se hace f5 o se recarga antes de poner el nombre.
