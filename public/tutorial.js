@@ -28,6 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function iniciarTutorial() {
+    // Verificar nuevamente por si acaso
+    if (localStorage.getItem("tutorial_visto")) {
+        console.log("Tutorial ya visto, no iniciar");
+        return;
+    }
+    
     tutorialActivo = true;
     window.tutorialActivo = true;
     pasoTutorial = 1;
@@ -649,6 +655,9 @@ function mostrarPasoIntercambioCompletado() {
 
 /* ================= FINALIZAR ================= */
 function finalizarTutorial() {
+    // Marcar como visto PRIMERO antes de cualquier otra cosa
+    localStorage.setItem("tutorial_visto", "true");
+    
     tutorialActivo = false;
     window.tutorialActivo = false;
     
@@ -676,55 +685,35 @@ function finalizarTutorial() {
         }
     });
 
-    // Cerrar tutorial visualmente primero
+    // Cerrar tutorial visualmente
     overlay.classList.add("oculto");
     dialog.classList.add("oculto");
     
     // Limpiar estados
-    localStorage.setItem("tutorial_visto", "true");
     pasoTutorial = 0;
     datosTutorial = null;
     datosCardAjena = null;
     
-    // Verificar si necesita registro - NO recargar la página
+    // Verificar si necesita registro
     if (window.verificarRegistroPendiente) {
         window.verificarRegistroPendiente();
     }
     
-    // Recargar solo si NO hay registro pendiente (después de un tiempo)
+    // NO recargar la página - eso causa el bug
+    // Solo recargar si ya tiene nombre (tutorial completado normalmente)
     setTimeout(() => {
         const usuarioData = JSON.parse(localStorage.getItem("usuario"));
-        if (usuarioData && usuarioData.nombre) {
+        // Solo recargar si ya tiene nombre completo
+        if (usuarioData && usuarioData.nombre && !usuarioData.pendiente) {
             location.reload();
         }
     }, 1000);
 }
 
 function cerrarTutorial() {
-    overlay.classList.add("oculto");
-    dialog.classList.add("oculto");
-
-    const btnActual = document.getElementById("btn-formulario");
-    btnActual.classList.remove("tutorial-focus-btn");
-    
-    const formularioContainer = document.getElementById("formulario-container");
-    formularioContainer.classList.remove("tutorial-focus");
-
+    // Marcar como visto PRIMERO
     localStorage.setItem("tutorial_visto", "true");
     
-    pasoTutorial = 0;
-    datosTutorial = null;
-    datosCardAjena = null;
-    tutorialActivo = false;
-    window.tutorialActivo = false;
-    
-    if (proteccionCardsInterval) {
-        clearInterval(proteccionCardsInterval);
-        proteccionCardsInterval = null;
-    }
-}
-
-btnSkip.addEventListener("click", () => {
     tutorialActivo = false;
     window.tutorialActivo = false;
     
@@ -738,6 +727,21 @@ btnSkip.addEventListener("click", () => {
         if (card) card.remove();
     });
     
+    overlay.classList.add("oculto");
+    dialog.classList.add("oculto");
+
+    const btnActual = document.getElementById("btn-formulario");
+    btnActual.classList.remove("tutorial-focus-btn");
+    
+    const formularioContainer = document.getElementById("formulario-container");
+    formularioContainer.classList.remove("tutorial-focus");
+    
+    pasoTutorial = 0;
+    datosTutorial = null;
+    datosCardAjena = null;
+}
+
+btnSkip.addEventListener("click", () => {
     cerrarTutorial();
     
     // Verificar registro pendiente al saltar
