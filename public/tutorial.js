@@ -5,7 +5,8 @@ let datosCardAjena = null;
 let tutorialActivo = false;
 let proteccionCardsInterval = null;
 
-const btnSolicitar = document.getElementById("btn-formulario");
+// Referencia al botón que se actualizará dinámicamente
+let btnSolicitarRef = null;
 const overlay = document.getElementById("tutorial-overlay");
 const dialog = document.getElementById("tutorial-dialog");
 const text = document.getElementById("tutorial-text");
@@ -23,6 +24,9 @@ window.mostrarSolicitudes = function() {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Inicializar referencia al botón
+    btnSolicitarRef = document.getElementById("btn-formulario");
+    
     const visto = localStorage.getItem("tutorial_visto");
     if (!visto) iniciarTutorial();
 });
@@ -167,23 +171,34 @@ function mostrarPasoBoton() {
     btnNext.textContent = "Siguiente";
     btnNext.onclick = avanzarAPasoFormulario;
     
-    btnSolicitar.classList.remove("tutorial-focus-btn");
-    void btnSolicitar.offsetWidth;
-    btnSolicitar.classList.add("tutorial-focus-btn");
-    
-    btnSolicitar.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    const nuevoBtn = btnSolicitar.cloneNode(true);
-    btnSolicitar.parentNode.replaceChild(nuevoBtn, btnSolicitar);
+    // Obtener referencia fresca al botón
     const btnActual = document.getElementById("btn-formulario");
-    btnActual.addEventListener("click", avanzarAPasoFormulario, { once: true });
-    Object.assign(btnSolicitar, btnActual);
+    if (!btnActual) return;
+    
+    btnActual.classList.remove("tutorial-focus-btn");
+    void btnActual.offsetWidth;
+    btnActual.classList.add("tutorial-focus-btn");
+    
+    btnActual.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Agregar listener SOLO al botón actual con {once: true}
+    btnActual.addEventListener("click", manejarClickTutorialPaso1, { once: true });
+}
+
+// Handler separado para poder removerlo si es necesario
+function manejarClickTutorialPaso1(e) {
+    if (!tutorialActivo) return;
+    e.stopPropagation(); // Evitar que otros listeners se ejecuten
+    avanzarAPasoFormulario();
 }
 
 /* ================= PASO 2: Formulario ================= */
 function avanzarAPasoFormulario() {
+    // Remover clase de foco del botón
     const btnActual = document.getElementById("btn-formulario");
-    btnActual.classList.remove("tutorial-focus-btn");
+    if (btnActual) {
+        btnActual.classList.remove("tutorial-focus-btn");
+    }
     
     pasoTutorial = 2;
 
@@ -657,6 +672,7 @@ function mostrarPasoIntercambioCompletado() {
 function finalizarTutorial() {
     // Marcar como visto PRIMERO antes de cualquier otra cosa
     localStorage.setItem("tutorial_visto", "true");
+    console.log("✅ Tutorial marcado como visto");
     
     tutorialActivo = false;
     window.tutorialActivo = false;
@@ -713,6 +729,7 @@ function finalizarTutorial() {
 function cerrarTutorial() {
     // Marcar como visto PRIMERO
     localStorage.setItem("tutorial_visto", "true");
+    console.log("✅ Tutorial marcado como visto (cerrarTutorial)");
     
     tutorialActivo = false;
     window.tutorialActivo = false;
@@ -731,7 +748,9 @@ function cerrarTutorial() {
     dialog.classList.add("oculto");
 
     const btnActual = document.getElementById("btn-formulario");
-    btnActual.classList.remove("tutorial-focus-btn");
+    if (btnActual) {
+        btnActual.classList.remove("tutorial-focus-btn");
+    }
     
     const formularioContainer = document.getElementById("formulario-container");
     formularioContainer.classList.remove("tutorial-focus");
