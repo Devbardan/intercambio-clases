@@ -258,11 +258,6 @@ async function iniciarServidor() {
     // Primero reparar solicitudes existentes
     await repararSolicitudesExistentes();
     
-    // Luego iniciar el servidor
-    app.listen(PORT, () => {
-        console.log("Servidor corriendo en puerto", PORT);
-    });
-    
     // Limpieza inicial al arrancar
     await limpiarSolicitudesExpiradas();
 }
