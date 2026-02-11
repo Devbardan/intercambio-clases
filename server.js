@@ -142,6 +142,53 @@ app.put("/api/solicitudes/:id", async (req, res) => {
     }
 });
 
+// PUT editar solicitud propia (solo grupo y fecha)
+app.put("/api/solicitudes/:id/editar", async (req, res) => {
+    try {
+        const solicitud = await Solicitud.findOne({ id: req.params.id });
+        if (!solicitud) {
+            return res.status(404).json({ error: "Solicitud no encontrada" });
+        }
+
+        // Solo permitir editar si está abierta
+        if (solicitud.estado !== "abierta") {
+            return res.status(400).json({
+                error: "No se puede editar una solicitud ya intercambiada"
+            });
+        }
+
+        const { grupo, fecha } = req.body;
+        
+        if (!grupo || !fecha) {
+            return res.status(400).json({ error: "Datos incompletos" });
+        }
+
+        // Validar que no sea fecha pasada
+        const fechaSeleccionada = new Date(fecha);
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        if (fechaSeleccionada < hoy) {
+            return res.status(400).json({ error: "La fecha no puede ser anterior a hoy" });
+        }
+
+        // Actualizar solo grupo y fecha
+        solicitud.claseA.grupo = grupo;
+        solicitud.claseA.fecha = fecha;
+        
+        // Recalcular fecha de expiración
+        solicitud.expiraEn = calcularFechaExpiracion(solicitud);
+
+        await solicitud.save();
+        console.log(`✏️ Solicitud editada: ${req.params.id}`);
+        res.json(solicitud);
+
+    } catch (err) {
+        console.error("❌ Error PUT /api/solicitudes/:id/editar:", err);
+        res.status(500).json({ error: "Error al editar solicitud" });
+    }
+});
+
 // ✅ FUNCIÓN CORREGIDA: Limpieza de solicitudes expiradas
 async function limpiarSolicitudesExpiradas() {
     try {
@@ -193,10 +240,17 @@ app.post("/api/actualizar-nombre", async (req, res) => {
     }
 });
 
-// DELETE (opcional)
+// DELETE eliminar solicitud (propia o como parte de intercambio)
 app.delete("/api/solicitudes/:id", async (req, res) => {
     try {
+        const solicitud = await Solicitud.findOne({ id: req.params.id });
+        
+        if (!solicitud) {
+            return res.status(404).json({ error: "Solicitud no encontrada" });
+        }
+
         await Solicitud.deleteOne({ id: req.params.id });
+        console.log(`🗑️ Solicitud eliminada: ${req.params.id}`);
         res.json({ ok: true });
     } catch (err) {
         console.error(err);

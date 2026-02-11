@@ -122,10 +122,17 @@ async function mostrarSolicitudes() {
                     : "estado-intercambiada";
         }
 
-        if (
-            solicitud.estado === "abierta" &&
-            solicitud.claseA.userId !== usuario.id
-        ) {
+        // Verificar si es mi solicitud propia y está abierta (editable)
+        const esMiSolicitudEditable = 
+            solicitud.estado === "abierta" && 
+            solicitud.claseA.userId === usuario.id;
+
+        // Verificar si es una solicitud de otro usuario abierta (intercambiable)
+        const esSolicitudAjenaIntercambiable = 
+            solicitud.estado === "abierta" && 
+            solicitud.claseA.userId !== usuario.id;
+
+        if (esSolicitudAjenaIntercambiable) {
             card.classList.add("clickeable");
             card.addEventListener("click", () => {
                 card.scrollIntoView({
@@ -133,6 +140,13 @@ async function mostrarSolicitudes() {
                     block: "start"
                 });
                 prepararFormulario(solicitud.id);
+            });
+        } else if (esMiSolicitudEditable) {
+            // Mi solicitud editable - abrir editor al hacer clic
+            card.classList.add("clickeable", "mi-solicitud");
+            card.style.cursor = "pointer";
+            card.addEventListener("click", () => {
+                abrirEditorSolicitud(solicitud);
             });
         }
 
@@ -155,6 +169,10 @@ async function mostrarSolicitudes() {
             `;
         }
 
+        // Indicador de edición para mis solicitudes
+        const indicadorEdicion = esMiSolicitudEditable ? 
+            `<div style="text-align: center; margin-top: 8px; font-size: 0.8rem; color: #666; opacity: 0.7;">✏️ Click para editar</div>` : '';
+
         card.innerHTML = `
             <div class="card-header">
                 <span class="fecha">${solicitud.claseA.fecha}</span>
@@ -170,6 +188,7 @@ async function mostrarSolicitudes() {
                 </span>
             </div>
             ${resultadoHTML}
+            ${indicadorEdicion}
         `;
 
         lista.appendChild(card);
@@ -528,6 +547,171 @@ function verificarRegistroPendiente() {
         setTimeout(() => {
             abrirModalRegistro();
         }, 500);
+    }
+}
+
+// ================= EDITAR/ELIMINAR SOLICITUD PROPIA =================
+
+// Variable para saber si estamos editando una solicitud
+let solicitudEnEdicion = null;
+
+// Función para abrir el editor de solicitud
+function abrirEditorSolicitud(solicitud) {
+    solicitudEnEdicion = solicitud;
+    
+    // Crear el modal de edición si no existe
+    let modal = document.getElementById("modal-editar-solicitud");
+    if (!modal) {
+        crearModalEdicionSolicitud();
+        modal = document.getElementById("modal-editar-solicitud");
+    }
+    
+    // Llenar el formulario con los datos de la solicitud
+    document.getElementById("edit-asignatura").value = solicitud.claseA.asignatura;
+    document.getElementById("edit-grupo").value = solicitud.claseA.grupo;
+    document.getElementById("edit-fecha").value = solicitud.claseA.fecha;
+    
+    // Mostrar el modal
+    modal.classList.remove("oculto");
+    
+    // Establecer fecha mínima
+    const inputFecha = document.getElementById("edit-fecha");
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dd = String(hoy.getDate()).padStart(2, "0");
+    inputFecha.min = `${yyyy}-${mm}-${dd}`;
+}
+
+// Crear el modal de edición de solicitud
+function crearModalEdicionSolicitud() {
+    const modalHTML = `
+        <div id="modal-editar-solicitud" class="modal-editar-nombre oculto">
+            <div class="modal-contenido" style="max-width: 400px;">
+                <h3>Editar Solicitud</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 12px;">
+                    Modifica los datos de tu solicitud de intercambio
+                </p>
+                
+                <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
+                    Asignatura
+                    <input type="text" id="edit-asignatura" disabled 
+                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #1b1b1b; border-radius: 8px; background: #f5f5f5;">
+                </label>
+                
+                <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
+                    Grupo
+                    <input type="number" id="edit-grupo" required 
+                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #1b1b1b; border-radius: 8px;">
+                </label>
+                
+                <label style="display: block; margin-bottom: 16px; font-size: 0.9rem; font-weight: 600;">
+                    Fecha
+                    <input type="date" id="edit-fecha" required 
+                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #1b1b1b; border-radius: 8px;">
+                </label>
+                
+                <div class="modal-botones">
+                    <button class="btn-cancelar" id="btn-cancelar-edicion">Cancelar</button>
+                    <button class="btn-eliminar" id="btn-eliminar-solicitud" style="background: #e74c3c; color: white;">Eliminar</button>
+                    <button class="btn-guardar" id="btn-guardar-edicion">Guardar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Event listeners
+    document.getElementById("btn-cancelar-edicion").addEventListener("click", cerrarEditorSolicitud);
+    document.getElementById("btn-guardar-edicion").addEventListener("click", guardarEdicionSolicitud);
+    document.getElementById("btn-eliminar-solicitud").addEventListener("click", eliminarSolicitudPropia);
+    
+    // Cerrar al hacer click fuera
+    const modal = document.getElementById("modal-editar-solicitud");
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) cerrarEditorSolicitud();
+    });
+}
+
+// Cerrar el editor
+function cerrarEditorSolicitud() {
+    const modal = document.getElementById("modal-editar-solicitud");
+    if (modal) {
+        modal.classList.add("oculto");
+    }
+    solicitudEnEdicion = null;
+}
+
+// Guardar los cambios de la edición
+async function guardarEdicionSolicitud() {
+    if (!solicitudEnEdicion) return;
+    
+    const grupo = Number(document.getElementById("edit-grupo").value);
+    const fecha = document.getElementById("edit-fecha").value;
+    
+    if (!grupo || !fecha) {
+        alert("Completa todos los campos");
+        return;
+    }
+    
+    const fechaSeleccionada = new Date(fecha);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    if (fechaSeleccionada < hoy) {
+        alert("No puedes seleccionar una fecha anterior a hoy.");
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/solicitudes/${solicitudEnEdicion.id}/editar`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                grupo: grupo,
+                fecha: fecha
+            })
+        });
+        
+        if (response.ok) {
+            console.log("✅ Solicitud actualizada");
+            cerrarEditorSolicitud();
+            await mostrarSolicitudes();
+        } else {
+            const data = await response.json();
+            alert(`Error: ${data.error || "No se pudo actualizar"}`);
+        }
+    } catch (err) {
+        console.error("❌ Error al actualizar:", err);
+        alert("Error al guardar los cambios");
+    }
+}
+
+// Eliminar la solicitud propia
+async function eliminarSolicitudPropia() {
+    if (!solicitudEnEdicion) return;
+    
+    if (!confirm("¿Estás seguro de que quieres eliminar esta solicitud?")) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/solicitudes/${solicitudEnEdicion.id}`, {
+            method: "DELETE"
+        });
+        
+        if (response.ok) {
+            console.log("🗑️ Solicitud eliminada");
+            cerrarEditorSolicitud();
+            await mostrarSolicitudes();
+        } else {
+            alert("No se pudo eliminar la solicitud");
+        }
+    } catch (err) {
+        console.error("❌ Error al eliminar:", err);
+        alert("Error al eliminar la solicitud");
     }
 }
 
