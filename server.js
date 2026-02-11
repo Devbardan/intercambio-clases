@@ -142,13 +142,19 @@ app.put("/api/solicitudes/:id", async (req, res) => {
     }
 });
 
-// PUT editar solicitud propia (solo grupo y fecha)
+// PUT editar solicitud propia (grupo, fecha Y asignatura)
 app.put("/api/solicitudes/:id/editar", async (req, res) => {
     try {
-        // Buscar por el campo id (String), no por _id (ObjectId)
-        const solicitud = await Solicitud.findOne({ id: req.params.id });
+        const { id } = req.params;
+        const { grupo, fecha, asignatura } = req.body;
+        
+        console.log(`📝 Editando solicitud ${id}:`, { grupo, fecha, asignatura });
+
+        // Buscar por el campo id (String)
+        const solicitud = await Solicitud.findOne({ id: id });
         
         if (!solicitud) {
+            console.log(`❌ Solicitud no encontrada: ${id}`);
             return res.status(404).json({ error: "Solicitud no encontrada" });
         }
 
@@ -159,10 +165,9 @@ app.put("/api/solicitudes/:id/editar", async (req, res) => {
             });
         }
 
-        const { grupo, fecha } = req.body;
-        
+        // Validar datos
         if (!grupo || !fecha) {
-            return res.status(400).json({ error: "Datos incompletos" });
+            return res.status(400).json({ error: "Grupo y fecha son obligatorios" });
         }
 
         // Validar que no sea fecha pasada
@@ -174,20 +179,33 @@ app.put("/api/solicitudes/:id/editar", async (req, res) => {
             return res.status(400).json({ error: "La fecha no puede ser anterior a hoy" });
         }
 
-        // Actualizar solo grupo y fecha
+        // Actualizar datos
         solicitud.claseA.grupo = Number(grupo);
         solicitud.claseA.fecha = fecha;
+        
+        // ✅ NUEVO: Permitir cambiar asignatura si se proporciona
+        if (asignatura && asignatura.trim()) {
+            solicitud.claseA.asignatura = asignatura.trim();
+        }
         
         // Recalcular fecha de expiración
         solicitud.expiraEn = calcularFechaExpiracion(solicitud);
 
         await solicitud.save();
-        console.log(`✏️ Solicitud editada: ${req.params.id}, nuevo grupo: ${grupo}, nueva fecha: ${fecha}`);
+        
+        console.log(`✅ Solicitud editada y guardada: ${id}`);
+        console.log(`   Datos actualizados:`, {
+            asignatura: solicitud.claseA.asignatura,
+            grupo: solicitud.claseA.grupo,
+            fecha: solicitud.claseA.fecha,
+            expiraEn: solicitud.expiraEn
+        });
+        
         res.json(solicitud);
 
     } catch (err) {
         console.error("❌ Error PUT /api/solicitudes/:id/editar:", err);
-        res.status(500).json({ error: "Error al editar solicitud" });
+        res.status(500).json({ error: "Error al editar solicitud", detalle: err.message });
     }
 });
 

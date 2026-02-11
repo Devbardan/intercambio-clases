@@ -567,7 +567,7 @@ function abrirEditorSolicitud(solicitud) {
     }
     
     // Llenar el formulario con los datos de la solicitud
-    document.getElementById("edit-asignatura").value = solicitud.claseA.asignatura;
+    document.getElementById("edit-asignatura").value = solicitud.claseA.asignatura; // ✅ AHORA EDITABLE
     document.getElementById("edit-grupo").value = solicitud.claseA.grupo;
     document.getElementById("edit-fecha").value = solicitud.claseA.fecha;
     
@@ -595,9 +595,9 @@ function crearModalEdicionSolicitud() {
                 </p>
                 
                 <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
-                    Asignatura (no editable)
-                    <input type="text" id="edit-asignatura" readonly 
-                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #ccc; border-radius: 8px; background: #f5f5f5; color: #666;">
+                    Asignatura
+                    <input type="text" id="edit-asignatura" required
+                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #1b1b1b; border-radius: 8px; background: #fff;">
                 </label>
                 
                 <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
@@ -650,16 +650,18 @@ async function guardarEdicionSolicitud() {
         return;
     }
     
+    const asignatura = document.getElementById("edit-asignatura").value.trim();
     const grupo = Number(document.getElementById("edit-grupo").value);
     const fecha = document.getElementById("edit-fecha").value;
     
     console.log("Guardando edición:", {
         id: solicitudEnEdicion.id,
+        asignatura: asignatura,
         grupo: grupo,
         fecha: fecha
     });
     
-    if (!grupo || !fecha) {
+    if (!asignatura || !grupo || !fecha) {
         alert("Completa todos los campos");
         return;
     }
@@ -679,6 +681,7 @@ async function guardarEdicionSolicitud() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                asignatura: asignatura,  // ✅ AHORA INCLUIDO
                 grupo: grupo,
                 fecha: fecha
             })
@@ -690,7 +693,7 @@ async function guardarEdicionSolicitud() {
         if (response.ok) {
             console.log("✅ Solicitud actualizada correctamente");
             cerrarEditorSolicitud();
-            await mostrarSolicitudes();
+            await mostrarSolicitudes(); // Recargar la lista
         } else {
             alert(`Error: ${data.error || "No se pudo actualizar"}`);
         }
