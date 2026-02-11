@@ -145,7 +145,9 @@ app.put("/api/solicitudes/:id", async (req, res) => {
 // PUT editar solicitud propia (solo grupo y fecha)
 app.put("/api/solicitudes/:id/editar", async (req, res) => {
     try {
+        // Buscar por el campo id (String), no por _id (ObjectId)
         const solicitud = await Solicitud.findOne({ id: req.params.id });
+        
         if (!solicitud) {
             return res.status(404).json({ error: "Solicitud no encontrada" });
         }
@@ -173,14 +175,14 @@ app.put("/api/solicitudes/:id/editar", async (req, res) => {
         }
 
         // Actualizar solo grupo y fecha
-        solicitud.claseA.grupo = grupo;
+        solicitud.claseA.grupo = Number(grupo);
         solicitud.claseA.fecha = fecha;
         
         // Recalcular fecha de expiración
         solicitud.expiraEn = calcularFechaExpiracion(solicitud);
 
         await solicitud.save();
-        console.log(`✏️ Solicitud editada: ${req.params.id}`);
+        console.log(`✏️ Solicitud editada: ${req.params.id}, nuevo grupo: ${grupo}, nueva fecha: ${fecha}`);
         res.json(solicitud);
 
     } catch (err) {

@@ -595,9 +595,9 @@ function crearModalEdicionSolicitud() {
                 </p>
                 
                 <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
-                    Asignatura
-                    <input type="text" id="edit-asignatura" disabled 
-                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #1b1b1b; border-radius: 8px; background: #f5f5f5;">
+                    Asignatura (no editable)
+                    <input type="text" id="edit-asignatura" readonly 
+                           style="width: 100%; margin-top: 6px; padding: 10px; border: 2px solid #ccc; border-radius: 8px; background: #f5f5f5; color: #666;">
                 </label>
                 
                 <label style="display: block; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600;">
@@ -645,10 +645,19 @@ function cerrarEditorSolicitud() {
 
 // Guardar los cambios de la edición
 async function guardarEdicionSolicitud() {
-    if (!solicitudEnEdicion) return;
+    if (!solicitudEnEdicion) {
+        console.error("No hay solicitud en edición");
+        return;
+    }
     
     const grupo = Number(document.getElementById("edit-grupo").value);
     const fecha = document.getElementById("edit-fecha").value;
+    
+    console.log("Guardando edición:", {
+        id: solicitudEnEdicion.id,
+        grupo: grupo,
+        fecha: fecha
+    });
     
     if (!grupo || !fecha) {
         alert("Completa todos los campos");
@@ -675,12 +684,14 @@ async function guardarEdicionSolicitud() {
             })
         });
         
+        const data = await response.json();
+        console.log("Respuesta del servidor:", data);
+        
         if (response.ok) {
-            console.log("✅ Solicitud actualizada");
+            console.log("✅ Solicitud actualizada correctamente");
             cerrarEditorSolicitud();
             await mostrarSolicitudes();
         } else {
-            const data = await response.json();
             alert(`Error: ${data.error || "No se pudo actualizar"}`);
         }
     } catch (err) {
