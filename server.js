@@ -179,29 +179,42 @@ app.put("/api/solicitudes/:id/editar", async (req, res) => {
             return res.status(400).json({ error: "La fecha no puede ser anterior a hoy" });
         }
 
-        // Actualizar datos
-        solicitud.claseA.grupo = Number(grupo);
-        solicitud.claseA.fecha = fecha;
-        
-        // ✅ NUEVO: Permitir cambiar asignatura si se proporciona
-        if (asignatura && asignatura.trim()) {
-            solicitud.claseA.asignatura = asignatura.trim();
-        }
-        
-        // Recalcular fecha de expiración
-        solicitud.expiraEn = calcularFechaExpiracion(solicitud);
+        // ✅ SOLUCIÓN: Usar findOneAndUpdate en lugar de save()
+        // Esto fuerza la actualización directa en la base de datos
+        const updateData = {
+            $set: {
+                "claseA.grupo": Number(grupo),
+                "claseA.fecha": fecha,
+                "expiraEn": calcularFechaExpiracion(solicitud) // Recalcular basado en nueva fecha
+            }
+        };
 
-        await solicitud.save();
-        
-        console.log(`✅ Solicitud editada y guardada: ${id}`);
-        console.log(`   Datos actualizados:`, {
-            asignatura: solicitud.claseA.asignatura,
-            grupo: solicitud.claseA.grupo,
-            fecha: solicitud.claseA.fecha,
-            expiraEn: solicitud.expiraEn
+        // Si se proporciona asignatura, actualizarla también
+        if (asignatura && asignatura.trim()) {
+            updateData.$set["claseA.asignatura"] = asignatura.trim();
+        }
+
+        console.log(`🔄 Update data para MongoDB:`, updateData);
+
+        const resultado = await Solicitud.findOneAndUpdate(
+            { id: id },
+            updateData,
+            { new: true, runValidators: true } // new: true devuelve el documento actualizado
+        );
+
+        if (!resultado) {
+            return res.status(404).json({ error: "No se pudo actualizar la solicitud" });
+        }
+
+        console.log(`✅ Solicitud editada correctamente: ${id}`);
+        console.log(`   Datos guardados en DB:`, {
+            asignatura: resultado.claseA.asignatura,
+            grupo: resultado.claseA.grupo,
+            fecha: resultado.claseA.fecha,
+            expiraEn: resultado.expiraEn
         });
         
-        res.json(solicitud);
+        res.json(resultado);
 
     } catch (err) {
         console.error("❌ Error PUT /api/solicitudes/:id/editar:", err);

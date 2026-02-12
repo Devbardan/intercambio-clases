@@ -402,15 +402,6 @@ body {
     position: relative;
 }
 
-.mi-solicitud::before {
-    content: "✏️";
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.2rem;
-    opacity: 0.6;
-}
-
 .mi-solicitud:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 22px rgba(52, 152, 219, 0.2);
