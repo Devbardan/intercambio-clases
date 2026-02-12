@@ -47,15 +47,32 @@ body {
 .btn-editar {
     background: none;
     border: none;
-    font-size: 1.1rem;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background 0.2s ease;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #666;
 }
 
 .btn-editar:hover {
     background: rgba(0,0,0,0.1);
+}
+
+.btn-editar .texto {
+    display: none;
+}
+
+.btn-editar:hover .icono {
+    display: none;
+}
+
+.btn-editar:hover .texto {
+    display: inline;
+    font-weight: 600;
 }
 
 /* Modal para editar nombre */
@@ -474,6 +491,20 @@ body {
 @media (min-width: 1200px) {
     .lista-solicitudes {
         grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .btn-editar .icono {
+        display: none;
+    }
+    .btn-editar .texto {
+        display: inline;
+        font-size: 0.85rem;
+    }
+    .btn-editar {
+        padding: 4px 8px;
+        background: rgba(0,0,0,0.05);
     }
 }
 
